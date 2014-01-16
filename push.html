@@ -5,13 +5,22 @@
 <script language="javascript" type="text/javascript"> 
 
 var ws = new WebSocket("ws://peterthepusher.herokuapp.com");
+var showMessages = false;
 
 ws.onmessage = function(evt) {
-    notify(evt.data, 'http://www.gu.com'); 
-
+    if (showMessages == true) {
+        notify(evt.data, 'http://www.gu.com'); 
+    }
 };
 
-ws.onclose(alert('WebSocket closed'));
+ws.onclose = function() {
+    alert("Conection is closed");
+};
+
+function closeConnection() {
+    showMessages = false;
+    ws.close();
+};
 
 var notify = function (msg, url) {
     // Check for notification compatibility.
@@ -68,8 +77,8 @@ var notify = function (msg, url) {
 <!-- 
 <a id="kick" href="javascript:notify();">Test message</a>
  -->
-
- <a href="#" onclick="ws.close();">Disconnect</a>
+<a href="#" onclick="showMessages = true;">Send me stuff!</a>
+ <a href="#" onclick="closeConnection();">Disconnect</a>
 
  <div id="output"></div> 
  </html>
