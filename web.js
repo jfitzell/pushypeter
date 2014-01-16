@@ -1,30 +1,20 @@
 var WebSocketServer = require('ws').Server
   , http = require('http')
   , express = require('express')
-  , wsApp = express()
-  , wsPort = process.env.PORT || 5000
-  , httpApp = express()
-  , httpPort = process.env.PORT || 80;
+  , app = express()
+  , wsPort = process.env.PORT || 5000;
 
 const discussionAPIBase = 'http://discussion.code.dev-guardianapis.com/discussion-api/';
 
 // Set up WebSocket server
-wsApp.use(express.static(__dirname + '/'));
-//wsApp.use(express.bodyParser());
+app.use(express.static(__dirname + '/'));
+//app.use(express.bodyParser());
 
-var wsServer = http.createServer(wsApp);
-wsServer.listen(wsPort);
+var server = http.createServer(app);
+server.listen(wsPort);
 
-console.log('Web socket server listening on %d', wsPort);
+console.log('Server listening on %d', wsPort);
 
-
-// Set up plain HTTP server
-// httpApp.use(express.static(__dirname + '/'));
-// 
-// var httpServer = http.createServer(httpApp);
-// httpServer.listen(httpPort);
-// 
-// console.log('http server listening on %d', httpPort);
 
 const exampleComment = {
 	"id": 21567317,
@@ -129,8 +119,7 @@ function fetchComment(id, f) {
 
 var sockets = new Array();
 
-var wss = new WebSocketServer({server: wsServer});
-console.log('websocket wsServer created');
+var wss = new WebSocketServer({server: server});
 wss.on('connection', function(ws) {
 	sockets.push(ws);
 	console.log('Pushed new socket. List size: ' + sockets.length);
@@ -153,7 +142,7 @@ wss.on('connection', function(ws) {
     });
 });
 
-wsApp.post('/comment', function(req, res) {
+app.post('/comment', function(req, res) {
 	var type = req.headers['x-amz-sns-message-type'];
 	
 	getJSONBody(req, function(postData) {		
@@ -181,7 +170,7 @@ wsApp.post('/comment', function(req, res) {
 	});
 });
 
-wsApp.get('/comment', function(req, res) {
+app.get('/comment', function(req, res) {
 	if (req.query.id) {
 		fetchComment(req.query.id, function (comment) {
 			handleComment(comment);
@@ -193,7 +182,7 @@ wsApp.get('/comment', function(req, res) {
 	res.send('Notification sent!');
 });
 
-wsApp.get('/send', function(req, res) {
+app.get('/send', function(req, res) {
 	if (req.query.message) {
 		sendNotification(new Message(req.query.message));
 		res.send('Message sent!');
