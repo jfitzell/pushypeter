@@ -81,6 +81,23 @@ function Message(text) {
 	};
 }
 
+
+function handleComment(comment) {
+	var notification = new DirectReply(comment);
+	
+	sendNotification(notification);
+}
+
+function sendNotification(notification) {
+	var json = JSON.stringify(notification);
+	sockets.forEach(function(each) {
+		each.send(json, function() { });
+	});
+}
+
+
+
+
 var sockets = new Array();
 
 var wss = new WebSocketServer({server: wsServer});
@@ -143,9 +160,7 @@ wsApp.post('/comment', function(req, res) {
 				res.on('end', function() {
 					var responseData = JSON.parse(responseBody);
 					console.log(responseData);
-					sockets.forEach(function(each) {
-						each.send(JSON.stringify(new DirectReply(responseData.comment)), function() { });
-					});
+					handleComment(responseData.comment);
 				});
 			});
 		} else {
@@ -157,9 +172,7 @@ wsApp.post('/comment', function(req, res) {
 });
 
 wsApp.get('/comment', function(req, res) {
-	sockets.forEach(function(each) {
-		each.send(JSON.stringify(new DirectReply(exampleComment)), function() { });
-	});
+	sendNotification(new DirectReply(exampleComment));
 	
 	res.send('Notification sent!');
 });
