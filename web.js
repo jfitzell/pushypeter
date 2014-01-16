@@ -2,12 +2,12 @@ var WebSocketServer = require('ws').Server
   , http = require('http')
   , express = require('express')
   , wsApp = express()
-  , wsPort = 5000
+  , wsPort = process.env.PORT || 5000
   , httpApp = express()
   , httpPort = process.env.PORT || 80;
 
 // Set up WebSocket server
-//wsApp.use(express.static(__dirname + '/'));
+wsApp.use(express.static(__dirname + '/'));
 
 var wsServer = http.createServer(wsApp);
 wsServer.listen(wsPort);
@@ -16,12 +16,12 @@ console.log('Web socket server listening on %d', wsPort);
 
 
 // Set up plain HTTP server
-httpApp.use(express.static(__dirname + '/'));
-
-var httpServer = http.createServer(httpApp);
-httpServer.listen(httpPort);
-
-console.log('http server listening on %d', httpPort);
+// httpApp.use(express.static(__dirname + '/'));
+// 
+// var httpServer = http.createServer(httpApp);
+// httpServer.listen(httpPort);
+// 
+// console.log('http server listening on %d', httpPort);
 
 
 
@@ -53,7 +53,7 @@ wss.on('connection', function(ws) {
 });
 
 
-httpApp.get('/', function(req, res) {
+wsApp.get('/send', function(req, res) {
 	sockets.map(function(each) {
 		each.send(JSON.stringify(req.query.message), function() { });
 	});
