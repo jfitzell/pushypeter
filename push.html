@@ -11,7 +11,7 @@ ws.onmessage = function(evt) {
 
 };
 
-
+ws.onclose(alert('WebSocket closed'));
 
 var notify = function (msg, url) {
     // Check for notification compatibility.
@@ -34,7 +34,7 @@ var notify = function (msg, url) {
     // If the user has granted permission for this domain to send notifications...
     else if (Notification.permission === 'granted') {
         var n = new Notification(
-            'New message from Liz', {
+            'JulianF replied to your comment', {
                 'body': msg,
                 // ...prevent duplicate notifications
                 'tag': 'unique string'
@@ -65,7 +65,11 @@ var notify = function (msg, url) {
 
  <h2>WebSocket Test</h2>
 
+<!-- 
 <a id="kick" href="javascript:notify();">Test message</a>
+ -->
+
+ <a href="#" onclick="ws.close();">Disconnect</a>
 
  <div id="output"></div> 
  </html>
