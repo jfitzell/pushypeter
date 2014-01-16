@@ -24,6 +24,42 @@ console.log('Web socket server listening on %d', wsPort);
 // 
 // console.log('http server listening on %d', httpPort);
 
+const exampleComment = {
+	"id": 21567317,
+	"body": "<p>@peterv12 - I really wish I had an answer to the housing crisis; or any other situation where demand exceeds supply. </p> <p>I wish we lived in a world where everyone could have as much of anything, including housing, as they wanted. But we don't; and as long as we don't I think it is not unfair to regard as econonmically illiterate someone like Ms Hanson who thinks that the problem of allocation of scarce resouces can be ignored; or dealt with by selective subsidy of a particular group of people (paid for one assumes by taxing a larger group of not much richer people).</p>",
+	"date": "26 February 2013 10:03am",
+	"isoDateTime": "2013-02-26T10:03:37Z",
+	"status": "visible",
+	"webUrl": "http://discussion.theguardian.com/comment-permalink/21567317",
+	"apiUrl": "http://discussion.guardianapis.com/discussion-api/comment/21567317",
+	"numResponses": 2,
+	"numRecommends": 7,
+	"isHighlighted": false,
+	"responseTo": {
+		"displayName": "peterv12",
+		"commentApiUrl": "http://discussion.guardianapis.com/discussion-api/comment/21567050",
+		"isoDateTime": "2013-02-26T09:50:56Z",
+		"date": "26 February 2013 9:50am",
+		"commentId": "21567050",
+		"commentWebUrl": "http://discussion.theguardian.com/comment-permalink/21567050"
+	},
+	"userProfile": {
+		"userId": "4378739",
+		"displayName": "RClayton",
+		"webUrl": "http://www.theguardian.com/discussion/user/id/4378739",
+		"apiUrl": "http://discussion.guardianapis.com/discussion-api/profile/4378739",
+		"avatar": "http://static.guim.co.uk/sys-images/discussion/avatars/2011/10/20/RClayton/de693d9d-bcc0-4843-8cb3-62d2be3da4f2/60x60.png",
+		"secureAvatarUrl": "https://static-secure.guim.co.uk/sys-images/discussion/avatars/2011/10/20/RClayton/de693d9d-bcc0-4843-8cb3-62d2be3da4f2/60x60.png",
+		"badge": []
+	},
+	"discussion": {
+		"key": "/p/3e3fk",
+		"webUrl": "http://www.theguardian.com/lifeandstyle/2013/feb/26/offices-affordable-housing-who-benefits",
+		"apiUrl": "http://discussion.guardianapis.com/discussion-api/discussion//p/3e3fk",
+		"title": "Turning offices into affordable housing sounds good, but who really benefits?"
+	}
+};
+
 function Ping() {
 	return {
 		type: 'ping',
@@ -31,44 +67,10 @@ function Ping() {
 	};
 }
 
-function DirectReply() {
+function DirectReply(comment) {
 	return {
 		type: 'directreply',
-		comment: {
-			"id": 21567317,
-			"body": "<p>@peterv12 - I really wish I had an answer to the housing crisis; or any other situation where demand exceeds supply. </p> <p>I wish we lived in a world where everyone could have as much of anything, including housing, as they wanted. But we don't; and as long as we don't I think it is not unfair to regard as econonmically illiterate someone like Ms Hanson who thinks that the problem of allocation of scarce resouces can be ignored; or dealt with by selective subsidy of a particular group of people (paid for one assumes by taxing a larger group of not much richer people).</p>",
-			"date": "26 February 2013 10:03am",
-			"isoDateTime": "2013-02-26T10:03:37Z",
-			"status": "visible",
-			"webUrl": "http://discussion.theguardian.com/comment-permalink/21567317",
-			"apiUrl": "http://discussion.guardianapis.com/discussion-api/comment/21567317",
-			"numResponses": 2,
-			"numRecommends": 7,
-			"isHighlighted": false,
-			"responseTo": {
-				"displayName": "peterv12",
-				"commentApiUrl": "http://discussion.guardianapis.com/discussion-api/comment/21567050",
-				"isoDateTime": "2013-02-26T09:50:56Z",
-				"date": "26 February 2013 9:50am",
-				"commentId": "21567050",
-				"commentWebUrl": "http://discussion.theguardian.com/comment-permalink/21567050"
-			},
-			"userProfile": {
-				"userId": "4378739",
-				"displayName": "RClayton",
-				"webUrl": "http://www.theguardian.com/discussion/user/id/4378739",
-				"apiUrl": "http://discussion.guardianapis.com/discussion-api/profile/4378739",
-				"avatar": "http://static.guim.co.uk/sys-images/discussion/avatars/2011/10/20/RClayton/de693d9d-bcc0-4843-8cb3-62d2be3da4f2/60x60.png",
-				"secureAvatarUrl": "https://static-secure.guim.co.uk/sys-images/discussion/avatars/2011/10/20/RClayton/de693d9d-bcc0-4843-8cb3-62d2be3da4f2/60x60.png",
-				"badge": []
-			},
-			"discussion": {
-				"key": "/p/3e3fk",
-				"webUrl": "http://www.theguardian.com/lifeandstyle/2013/feb/26/offices-affordable-housing-who-benefits",
-				"apiUrl": "http://discussion.guardianapis.com/discussion-api/discussion//p/3e3fk",
-				"title": "Turning offices into affordable housing sounds good, but who really benefits?"
-			}
-		}
+		comment: comment
 	};
 }
 
@@ -127,7 +129,25 @@ wsApp.post('/comment', function(req, res) {
 				console.log('Successfully confirmed with ' + url);
 			});
 		} else if (type == 'Notification') {
-			console.log(postData);
+			var message = JSON.parse(postData.Message);
+			console.log(message);
+			var commentId = message.comment_id;
+			var url = 'http://discussion.code.dev-guardianapis.com/discussion-api/comment/' + commentId;
+			console.log(url);			
+			http.get(url, function(res) {
+				console.log('Got comment from the API - sending to sockets');
+				var responseBody = '';
+				res.on('data', function(data) {
+					responseBody += data;
+				});
+				res.on('end', function() {
+					var responseData = JSON.parse(responseBody);
+					console.log(responseData);
+					sockets.forEach(function(each) {
+						each.send(JSON.stringify(new DirectReply(responseData.comment)), function() { });
+					});
+				});
+			});
 		} else {
 			console.log('Unhandled Amazon message type: ' + type);
 		}
@@ -137,8 +157,8 @@ wsApp.post('/comment', function(req, res) {
 });
 
 wsApp.get('/comment', function(req, res) {
-	sockets.map(function(each) {
-		each.send(JSON.stringify(new DirectReply()), function() { });
+	sockets.forEach(function(each) {
+		each.send(JSON.stringify(new DirectReply(exampleComment)), function() { });
 	});
 	
 	res.send('Notification sent!');
