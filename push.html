@@ -2,9 +2,18 @@
 
 <title>WebSocket Test</title> 
 
- <script language="javascript" type="text/javascript">  
+<script language="javascript" type="text/javascript"> 
 
-var notify = function () {
+var ws = new WebSocket("ws://peterthepusher.herokuapp.com");
+
+ws.onmessage = function(evt) {
+    notify(evt.data, 'http://www.gu.com'); 
+
+};
+
+
+
+var notify = function (msg, url) {
     // Check for notification compatibility.
     if (!'Notification' in window) {
         // If the browser version is unsupported, remain silent.
@@ -26,7 +35,7 @@ var notify = function () {
     else if (Notification.permission === 'granted') {
         var n = new Notification(
             'New message from Liz', {
-                'body': 'Liz: "Hi there!"',
+                'body': msg,
                 // ...prevent duplicate notifications
                 'tag': 'unique string'
             }
@@ -34,7 +43,7 @@ var notify = function () {
 
         // Remove the notification from Notification Center when clicked.
         n.onclick = function () {
-            open("http://www.w3schools.com");
+            open(url);
             this.close();
         };
 
