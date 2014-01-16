@@ -6,10 +6,11 @@
 
 var ws = new WebSocket("ws://peterthepusher.herokuapp.com");
 var showMessages = false;
+var n;
 
 ws.onmessage = function(evt) {
     if (showMessages == true) {
-        notify(evt.data, 'http://www.gu.com'); 
+        notify(evt); 
     }
 };
 
@@ -22,7 +23,39 @@ function closeConnection() {
     ws.close();
 };
 
-var notify = function (msg, url) {
+
+///// parsers /////
+
+
+function handlePing(ping) {
+         n = new Notification(
+            'PING!', {
+                'body': ping.date,
+                'tag': 'unique string'
+            });
+    
+};
+
+function handleDirectReply(dr) {
+         n = new Notification(
+            dr.comment.userProfile.displayName , {
+                'body': dr.comment.discussion.title,
+                'tag': 'unique string'
+            });
+
+};
+
+var handlers = {
+    'ping': handlePing,
+    'directreply': handleDirectReply
+};
+
+//////////
+
+var notify = function (evt) {
+    var obj = eval ("(" + evt.data + ")");
+    //alert(obj.type);
+
     // Check for notification compatibility.
     if (!'Notification' in window) {
         // If the browser version is unsupported, remain silent.
@@ -42,17 +75,17 @@ var notify = function (msg, url) {
 
     // If the user has granted permission for this domain to send notifications...
     else if (Notification.permission === 'granted') {
-        var n = new Notification(
-            'JulianF replied to your comment', {
-                'body': msg,
-                // ...prevent duplicate notifications
-                'tag': 'unique string'
-            }
-        );
+    
+    var handler = handlers[obj.type];
+    if (handler) {
+        handler(obj);
+    } else {
+        // ????
+    }
 
         // Remove the notification from Notification Center when clicked.
         n.onclick = function () {
-            open(url);
+            alert('onclick');
             this.close();
         };
 
@@ -77,7 +110,7 @@ var notify = function (msg, url) {
 <!-- 
 <a id="kick" href="javascript:notify();">Test message</a>
  -->
-<a href="#" onclick="showMessages = true;">Send me stuff!</a>
+<a href="#" onclick="showMessages = true;">Send me stuff!</a> <br />
  <a href="#" onclick="closeConnection();">Disconnect</a>
 
  <div id="output"></div> 
