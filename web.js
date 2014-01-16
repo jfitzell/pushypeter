@@ -6,6 +6,8 @@ var WebSocketServer = require('ws').Server
   , httpApp = express()
   , httpPort = process.env.PORT || 80;
 
+const discussionAPIBase = 'http://discussion.code.dev-guardianapis.com/discussion-api/';
+
 // Set up WebSocket server
 wsApp.use(express.static(__dirname + '/'));
 //wsApp.use(express.bodyParser());
@@ -89,6 +91,8 @@ function handleComment(comment) {
 }
 
 function sendNotification(notification) {
+	console.log('Sending notification: %j', notification);
+	
 	var json = JSON.stringify(notification);
 	sockets.forEach(function(each) {
 		each.send(json, function() { });
@@ -96,7 +100,22 @@ function sendNotification(notification) {
 }
 
 
-
+function fetchComment(id, f) {
+	var url = discussionAPIBase + 'comment/' + id;
+	console.log('Fetching comment ' + id + ': ' + url);			
+	http.get(url, function(res) {
+		console.log('Got comment ' + id);
+		var responseBody = '';
+		res.on('data', function(data) {
+			responseBody += data;
+		});
+		res.on('end', function() {
+			var data = JSON.parse(responseBody);
+			if (data.status == 'ok')
+				f(data.comment);
+		});
+	});
+}
 
 var sockets = new Array();
 
@@ -125,7 +144,6 @@ wss.on('connection', function(ws) {
 });
 
 wsApp.post('/comment', function(req, res) {
-	console.log('POST to /comment');
 	var type = req.headers['x-amz-sns-message-type'];
 	var body = '';
 	
@@ -138,33 +156,23 @@ wsApp.post('/comment', function(req, res) {
 		var postData = JSON.parse(body);
 		
 		if (type == 'SubscriptionConfirmation') {
-			console.log('Amazon SNS confirmation request received');
-			console.log(postData);
+			console.log('/comment - Amazon SNS SubscriptionConfirmation received: %s', body);
 			var url = postData.SubscribeURL;
 		
 			http.get(url, function(res2) {
 				console.log('Successfully confirmed with ' + url);
 			});
 		} else if (type == 'Notification') {
+			console.log('/comment - Amazon SNS Notification received: %s', postData.Message);
+
 			var message = JSON.parse(postData.Message);
-			console.log(message);
 			var commentId = message.comment_id;
-			var url = 'http://discussion.code.dev-guardianapis.com/discussion-api/comment/' + commentId;
-			console.log(url);			
-			http.get(url, function(res) {
-				console.log('Got comment from the API - sending to sockets');
-				var responseBody = '';
-				res.on('data', function(data) {
-					responseBody += data;
-				});
-				res.on('end', function() {
-					var responseData = JSON.parse(responseBody);
-					console.log(responseData);
-					handleComment(responseData.comment);
-				});
+
+			fetchComment(commentId, function(comment) {
+				handleComment(comment);
 			});
 		} else {
-			console.log('Unhandled Amazon message type: ' + type);
+			console.log('/comment - Unhandled Amazon message type: %s', type);
 		}
 
 		res.send("OK");
