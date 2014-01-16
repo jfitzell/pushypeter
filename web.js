@@ -182,15 +182,22 @@ wsApp.post('/comment', function(req, res) {
 });
 
 wsApp.get('/comment', function(req, res) {
-	sendNotification(new DirectReply(exampleComment));
+	if (req.query.id) {
+		fetchComment(req.query.id, function (comment) {
+			handleComment(comment);
+		});
+	} else {
+		handleComment(exampleComment);
+	}
 	
 	res.send('Notification sent!');
 });
 
 wsApp.get('/send', function(req, res) {
-	sockets.map(function(each) {
-		each.send(JSON.stringify(new Message(req.query.message)), function() { });
-	});
-	
-	res.send('Message sent!');
+	if (req.query.message) {
+		sendNotification(new Message(req.query.message));
+		res.send('Message sent!');
+	} else {
+		res.send(400, 'No message specified');
+	}
 });
