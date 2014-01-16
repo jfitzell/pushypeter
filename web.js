@@ -99,18 +99,28 @@ function sendNotification(notification) {
 	});
 }
 
+function getBody(requestOrResponse, f) {
+	var body = '';
+	requestOrResponse.on('data', function(data) {
+		body += data;
+	});
+	requestOrResponse.on('end', function() {
+		f(body);
+	});
+}
+
+function getJSONBody(requestOrResponse, f) {
+	getBody(requestOrResponse, function(body) {
+		f(JSON.parse(body));
+	});
+}
 
 function fetchComment(id, f) {
 	var url = discussionAPIBase + 'comment/' + id;
 	console.log('Fetching comment ' + id + ': ' + url);			
 	http.get(url, function(res) {
 		console.log('Got comment ' + id);
-		var responseBody = '';
-		res.on('data', function(data) {
-			responseBody += data;
-		});
-		res.on('end', function() {
-			var data = JSON.parse(responseBody);
+		getJSONBody(res, function(data) {
 			if (data.status == 'ok')
 				f(data.comment);
 		});
@@ -145,16 +155,8 @@ wss.on('connection', function(ws) {
 
 wsApp.post('/comment', function(req, res) {
 	var type = req.headers['x-amz-sns-message-type'];
-	var body = '';
 	
-	req.on('data', function(data) {
-		body += data;
-	});
-	
-	req.on('end', function() {
-		// TODO: try/catch
-		var postData = JSON.parse(body);
-		
+	getJSONBody(req, function(postData) {		
 		if (type == 'SubscriptionConfirmation') {
 			console.log('/comment - Amazon SNS SubscriptionConfirmation received: %s', body);
 			var url = postData.SubscribeURL;
