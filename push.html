@@ -28,7 +28,7 @@ function closeConnection() {
 
 
 function handlePing(ping) {
-         n = new Notification(
+         var n = new Notification(
             'PING!', {
                 'body': ping.date,
                 'tag': 'unique string'
@@ -37,12 +37,24 @@ function handlePing(ping) {
 };
 
 function handleDirectReply(dr) {
-         n = new Notification(
+         var n = new Notification(
             dr.comment.userProfile.displayName , {
                 'body': dr.comment.discussion.title,
                 'tag': 'unique string'
             });
 
+         // Remove the notification from Notification Center when clicked.
+        n.onclick = function () {
+            open("http://gu.com");
+            open("http://apple.com");
+            open(dr.comment.webUrl);
+            this.close();
+        };
+
+        // Callback function when the notification is closed.
+        n.onclose = function () {
+            console.log('Notification closed');
+        };
 };
 
 var handlers = {
@@ -82,17 +94,6 @@ var notify = function (evt) {
     } else {
         // ????
     }
-
-        // Remove the notification from Notification Center when clicked.
-        n.onclick = function () {
-            alert('onclick');
-            this.close();
-        };
-
-        // Callback function when the notification is closed.
-        n.onclose = function () {
-            console.log('Notification closed');
-        };
     }
 
     // If the user does not want notifications to come from this domain...
