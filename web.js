@@ -8,6 +8,7 @@ var WebSocketServer = require('ws').Server
 
 // Set up WebSocket server
 wsApp.use(express.static(__dirname + '/'));
+wsApp.use(express.bodyParser());
 
 var wsServer = http.createServer(wsApp);
 wsServer.listen(wsPort);
@@ -102,6 +103,24 @@ wss.on('connection', function(ws) {
         }
         console.log('Removed socket. List size: ' + sockets.length);
     });
+});
+
+wsApp.post('/comment', function(req, res) {
+	console.log('POST to /comment');
+	var type = req.headers['x-amz-sns-message-type'];
+	
+	if (type == 'SubscriptionConfirmation' && req.body) {
+		console.log('Amazon SNS confirmation request received');
+		var url = req.body.SubscribeURL;
+		
+		http.get(url, function(res2) {
+			console.log('Successfully confirmed with ' + url);
+		});
+	} else {
+		console.log('Unhandled Amazon message type: ' + type);
+	}
+
+	res.send("OK");
 });
 
 wsApp.get('/comment', function(req, res) {
