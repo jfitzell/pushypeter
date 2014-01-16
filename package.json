@@ -1,0 +1,25 @@
+{
+  "name": "pushypeter",
+  "version": "0.1.0",
+  "description": "Peter the Pusher",
+  "main": "web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jfitzell/pushypeter.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jfitzell/pushypeter/issues"
+  },
+  "dependencies": {
+    "logfmt": "~0.18.1",
+    "express": "~3.4.8"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}
