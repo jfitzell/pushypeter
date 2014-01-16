@@ -126,6 +126,8 @@ wsApp.post('/comment', function(req, res) {
 			http.get(url, function(res2) {
 				console.log('Successfully confirmed with ' + url);
 			});
+		} else if (type == 'Notification') {
+			console.log(postData);
 		} else {
 			console.log('Unhandled Amazon message type: ' + type);
 		}
