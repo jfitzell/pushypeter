@@ -111,6 +111,7 @@ wsApp.post('/comment', function(req, res) {
 	
 	if (type == 'SubscriptionConfirmation' && req.body) {
 		console.log('Amazon SNS confirmation request received');
+		console.log(req.body);
 		var url = req.body.SubscribeURL;
 		
 		http.get(url, function(res2) {
