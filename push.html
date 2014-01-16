@@ -9,7 +9,7 @@ var showMessages = false;
 
 ws.onmessage = function(evt) {
     if (showMessages == true) {
-        notify(evt.data, 'http://www.gu.com'); 
+        notify(evt); 
     }
 };
 
@@ -22,7 +22,26 @@ function closeConnection() {
     ws.close();
 };
 
-var notify = function (msg, url) {
+
+///// parsers /////
+
+
+function processMessage(evt) {
+    if ( evt.type == 'ping' ) {
+        var n = new Notification(
+            'PING!', {
+                'body': ping.date,
+                'tag': 'unique string'
+            }
+        );
+    }
+
+};
+
+
+//////////
+
+var notify = function (evt) {
     // Check for notification compatibility.
     if (!'Notification' in window) {
         // If the browser version is unsupported, remain silent.
@@ -42,13 +61,9 @@ var notify = function (msg, url) {
 
     // If the user has granted permission for this domain to send notifications...
     else if (Notification.permission === 'granted') {
-        var n = new Notification(
-            'JulianF replied to your comment', {
-                'body': msg,
-                // ...prevent duplicate notifications
-                'tag': 'unique string'
-            }
-        );
+        processMessage (evt);
+
+        
 
         // Remove the notification from Notification Center when clicked.
         n.onclick = function () {
