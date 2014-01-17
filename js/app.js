@@ -215,7 +215,7 @@ function notify(id, title, body, onclick) {
         console.log('Notify: '+ id);
         var n = new Notification(title, {
             body: strip(body),
-            icon: 'img/notification-icons/'+ id.split(':')[0] +'.png',
+            icon: 'img/notification-icons/soulmates.gif',
             tag: 'gu:notify:' + id
         });
     
