@@ -5,6 +5,28 @@
 	<script src="js/id.js"></script>
 	<script src="js/app.js"></script>
 	<style>
+	hgroup {
+		background: rgb(33, 69, 131);
+		color: white;
+		margin-bottom: 10px;
+		padding: 0 0 0 30px;
+		overflow: auto;
+	}
+
+	hgroup img {
+		display: inline-block;
+		float: right;
+	}
+
+	h1 {
+		display: inline-block;
+		font-weight: 400;
+		float: left;
+		line-height: 200px;
+		margin: 0;
+		padding: 0;
+	}
+
 	.actions a {
 		display: block;
 		font: 16px/1.4 Georgia;
@@ -23,7 +45,11 @@
 
 <body>
 
-<h2>Guardian Trigger</h2>
+<hgroup>
+	<h1>Trigger</h1>
+	<img src="img/trigger.jpg" />
+</hgroup>
+
 <div class="actions">
 	<button data-action="/soulmates">Send me a Soulmates DM!</button>
 	<button data-action="/comment">Send me a Guardian Reply!</button>
