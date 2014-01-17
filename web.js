@@ -105,9 +105,9 @@ function handleComment(comment) {
 		fetchComment(comment.responseTo.commentId, function(responseTo) {
 			sendNotification(notification, connections[responseTo.userProfile.userId]);
 		});
-	} else {
+	} /*else {
 		sendNotification(notification);
-	}
+	}*/
 }
 
 function handleContent(content) {
@@ -200,6 +200,7 @@ wss.on('connection', function(ws) {
         var index = sockets.indexOf(ws);
         if (index > -1) {
         	sockets.splice(index, 1);
+        	delete connections[ws.userId];
         }
         console.log('Removed socket. List size: ' + sockets.length);
     });
