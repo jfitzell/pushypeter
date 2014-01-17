@@ -154,7 +154,8 @@ function handleDirectReply(reply) {
         'Reply to your comment from '+ reply.comment.userProfile.displayName,
         reply.comment.body,
         function () {
-            open(reply.comment.webUrl);
+            var url = reply.comment.discussion.webUrl.replace('http://www.theguardian.com/', 'http://m.code.dev-theguardian.com/')+ '#comment-'+ reply.comment.id
+            window.open(url);
             this.close();
         });
 }
