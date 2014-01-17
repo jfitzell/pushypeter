@@ -77,6 +77,9 @@ function Message(subject, text) {
 	this.text = text;
 }
 
+function Keepalive() {
+	this.type = 'keepalive';
+}
 
 function handleComment(comment) {
 	var notification = new DirectReply(comment);
@@ -129,15 +132,15 @@ wss.on('connection', function(ws) {
 	sockets.push(ws);
 	console.log('Pushed new socket. List size: ' + sockets.length);
 	
-//     var id = setInterval(function() {
-//         ws.send(JSON.stringify(new Ping()), function() { });
-//     }, 10000);
+    var id = setInterval(function() {
+        sendNotification(new Keepalive(), ws);
+    }, 45000);
 
     console.log('websocket connection open');
 
     ws.on('close', function() {
-        console.log('websocket connection close');
-//        clearInterval(id);
+		console.log('websocket connection close');
+		clearInterval(id);
         
         var index = sockets.indexOf(ws);
         if (index > -1) {
