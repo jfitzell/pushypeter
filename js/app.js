@@ -180,6 +180,7 @@ function handleNewContent(content) {
 }
 
 const handlers = {
+	'keepalive': function() {},
     'newcontent': handleNewContent,
     'ping': handlePing,
     'pong': handlePong,
