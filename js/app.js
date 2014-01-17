@@ -15,7 +15,6 @@ window.addEventListener('load', function () {
 
     Array.prototype.forEach.call(document.querySelectorAll('.actions button'), function(elem) {
         elem.addEventListener('click', function() {
-            console.log(this)
             var url = this.getAttribute('data-action'),
                 xhr = new XMLHttpRequest();
             
@@ -168,6 +167,7 @@ function handleSoulmatesDM(soulmatesDM) {
 }
 
 const handlers = {
+    'newcontent': handleNewContent,
     'ping': handlePing,
     'pong': handlePong,
     'directreply': handleDirectReply,
@@ -209,4 +209,12 @@ function notify(id, title, body, onclick) {
         console.log('No permission to notify - ignoring notification');
         return null;
     }
+}
+
+function handleNewContent(content) {
+    console.log('content!');
+    console.log(content.headline);
+    notify('message', content.headline, content.trail, function() {
+        window.open(content.url)
+    });
 }
