@@ -77,7 +77,9 @@ function handleComment(comment) {
 	if (comment.responseTo) {
 		// getting the user Id
 		fetchComment(comment.responseTo.commentId, function(responseTo) {
-			sendNotification(notification, connections[responseTo.userProfile.userId]);
+			if (connections[responseTo.userProfile.userId]) {
+				sendNotification(notification, connections[responseTo.userProfile.userId]);
+			}
 		});
 	}
 }
@@ -103,12 +105,6 @@ function sendNotification(notification, to) {
 	
 	var json = JSON.stringify(notification);
 	var recipients = to ? [to] : sockets;
-
-	if (to) {
-		console.log('TOTOTOTOTOTOTOTOTO\n');
-		console.log(to.userId)
-		console.log('TOTOTOTOTOTOTOTOTO\n');
-	}
 
 	recipients.forEach(function(each) {
 		each.send(json, function() { });
