@@ -52,25 +52,29 @@ const exampleComment = {
 	}
 };
 
-function Ping() {
-	return {
-		type: 'ping',
-		date: new Date()
-	};
+function Ping(seq) {
+	this.type = 'ping';
+	this.date = new Date();
+	
+	if (seq) this.seq = seq;
+}
+
+function Pong(seq) {
+	this.type = 'pong';
+	this.date = new Date();
+	
+	if (seq) this.seq = seq;
 }
 
 function DirectReply(comment) {
-	return {
-		type: 'directreply',
-		comment: comment
-	};
+	this.type = 'directreply';
+	this.comment = comment;
 }
 
-function Message(text) {
-	return {
-		type: 'message',
-		text: text
-	};
+function Message(subject, text) {
+	this.type = 'message';
+	this.subject = subject;
+	this.text = text;
 }
 
 
@@ -80,11 +84,12 @@ function handleComment(comment) {
 	sendNotification(notification);
 }
 
-function sendNotification(notification) {
+function sendNotification(notification, to) {
 	console.log('Sending notification: %j', notification);
 	
 	var json = JSON.stringify(notification);
-	sockets.forEach(function(each) {
+	var recipients = to ? [to] : sockets;
+	recipients.forEach(function(each) {
 		each.send(json, function() { });
 	});
 }
@@ -124,15 +129,15 @@ wss.on('connection', function(ws) {
 	sockets.push(ws);
 	console.log('Pushed new socket. List size: ' + sockets.length);
 	
-    var id = setInterval(function() {
-        ws.send(JSON.stringify(new Ping()), function() { });
-    }, 10000);
+//     var id = setInterval(function() {
+//         ws.send(JSON.stringify(new Ping()), function() { });
+//     }, 10000);
 
     console.log('websocket connection open');
 
     ws.on('close', function() {
         console.log('websocket connection close');
-        clearInterval(id);
+//        clearInterval(id);
         
         var index = sockets.indexOf(ws);
         if (index > -1) {
@@ -140,6 +145,20 @@ wss.on('connection', function(ws) {
         }
         console.log('Removed socket. List size: ' + sockets.length);
     });
+    
+    ws.on('message', function(data, flags) {
+    	console.log('Message received: %s', data);
+		var message = JSON.parse(data);
+
+    	if (message.type == 'ping') {
+    		console.log('Ping received');
+    		sendNotification(new Pong(message.seq), ws);
+    	} else if (message.type == 'pong') {
+    		console.log('Pong received');
+    	}
+	});
+	
+	sendNotification(new Message('Welcome!', 'You are receiving notifications from Guardian Trigger'), ws);
 });
 
 app.post('/comment', function(req, res) {
