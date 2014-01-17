@@ -34,8 +34,15 @@ function connect() {
 		handle(evt); 
 	};
 
+	var keepaliveInterval;
+
 	ws.onclose = function() {
 		console.log("Conection was closed");
+		if (keepaliveInterval) {
+			clearInterval(keepaliveInterval);
+			keepaliveInterval = null;
+		}
+		
 		if (autoReconnect) {
 			setTimeout(function() {
 				if (ws.readyState > 1 && autoReconnect)
@@ -46,6 +53,7 @@ function connect() {
 	
 	ws.onopen = function() {
 		console.log('Connected to %s', url);
+		keepaliveInterval = setInterval(function() { sendKeepalive() }, 30000);
 //		sendPing();
 	}
 }
@@ -70,6 +78,14 @@ function sendPong() {
 		ws.send(JSON.stringify({
 			type: 'pong',
 			date: new Date()
+		}));
+	}
+}
+
+function sendKeepalive() {
+	if (ws) {
+		ws.send(JSON.stringify({
+			type: 'keepalive'
 		}));
 	}
 }
