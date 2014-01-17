@@ -150,8 +150,9 @@ function showReply() {
 }
 
 function handleDirectReply(reply) {
-    notify('discussion:reply', reply.comment.userProfile.displayName,
-        reply.comment.discussion.title,
+    notify('discussion:reply',
+        'Reply to your comment from '+ reply.comment.userProfile.displayName,
+        reply.comment.body,
         function () {
             open(reply.comment.webUrl);
             this.close();
