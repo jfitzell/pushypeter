@@ -166,7 +166,7 @@ app.post('/comment', function(req, res) {
 	
 	getJSONBody(req, function(postData) {		
 		if (type == 'SubscriptionConfirmation') {
-			console.log('/comment - Amazon SNS SubscriptionConfirmation received: %s', body);
+			console.log('/comment - Amazon SNS SubscriptionConfirmation received: %j', postData);
 			var url = postData.SubscribeURL;
 		
 			http.get(url, function(res2) {
