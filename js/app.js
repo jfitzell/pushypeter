@@ -169,7 +169,7 @@ function handleSoulmatesDM(soulmatesDM) {
 function handleBreaking(breaking) {
     notify('BREAKING: ' + breaking.headline, breaking.trail, function() {
         window.open(breaking.url)
-    };
+    });
 }
 
 function handleNewContent(content) {
@@ -178,6 +178,7 @@ function handleNewContent(content) {
     notify('message', content.headline, content.trail, function() {
         window.open(content.url)
     });
+}
 
 const handlers = {
     'newcontent': handleNewContent,
@@ -223,6 +224,4 @@ function notify(id, title, body, onclick) {
         console.log('No permission to notify - ignoring notification');
         return null;
     }
-}
-
 }
