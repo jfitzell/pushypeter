@@ -37,7 +37,7 @@ function connect() {
 	ws.onclose = function() {
 		console.log("Conection was closed");
 		if (autoReconnect)
-			setTimeout(function() {connect()}, 1000);
+			setTimeout(function() {connect()}, 5000);
 	};
 	
 	ws.onopen = function() {
