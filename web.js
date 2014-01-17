@@ -20,6 +20,8 @@ console.log('Server listening on %d', wsPort);
 const exampleContentId = 'commentisfree/cifamerica/2012/may/02/occupy-wall-street-panel-may-day';
 const exampleCommentId = 27478733;
 
+var messageI = 1;
+
 function Ping(seq) {
 	this.type = 'ping';
 	this.date = new Date();
@@ -47,10 +49,20 @@ function Message(subject, text) {
 }
 
 function SoulmatesDM(sendername, text) {
+	var messages = {
+		1: ['hotlips34', 'Hey. Saw your profile on the Soulmates homepage, and thought you looked someone I might like to meet'],
+		2: ['sloppyseconds', 'You are just what I am looking for. How about we go look at some ducks in hyde park?'],
+		3: ['throbbingthird', 'What? You like dinosaurs too? Let get prehistoric together!']
+	};
+
+	var i = messageI > 3 ? 1 : messageI;
+	var m = messages[i];
+	messageI++;
+
 	this.type = 'soulmatesDM';
 	this.id = Math.floor(Math.random() * 10000000);
-	this.sender = sendername;
-	this.text = text;
+	this.sender = m[0];
+	this.text = m[1];
 }
 
 
