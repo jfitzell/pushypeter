@@ -166,13 +166,27 @@ function handleSoulmatesDM(soulmatesDM) {
     notify('soulmates:dm', 'Soulmates: New message from ' + soulmatesDM.sender, soulmatesDM.text);
 }
 
+function handleBreaking(breaking) {
+    notify('BREAKING: ' + breaking.headline, breaking.trail, function() {
+        window.open(breaking.url)
+    };
+}
+
+function handleNewContent(content) {
+    console.log('content!');
+    console.log(content.headline);
+    notify('message', content.headline, content.trail, function() {
+        window.open(content.url)
+    });
+
 const handlers = {
     'newcontent': handleNewContent,
     'ping': handlePing,
     'pong': handlePong,
     'directreply': handleDirectReply,
     'message': handleMessage,
-    'soulmatesDM': handleSoulmatesDM
+    'soulmatesDM': handleSoulmatesDM,
+    'breaking': handleBreaking
 };
 
 //////////
@@ -211,10 +225,4 @@ function notify(id, title, body, onclick) {
     }
 }
 
-function handleNewContent(content) {
-    console.log('content!');
-    console.log(content.headline);
-    notify('message', content.headline, content.trail, function() {
-        window.open(content.url)
-    });
 }

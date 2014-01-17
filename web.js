@@ -98,6 +98,14 @@ function NewContent(headline, trail, url, thumbnail, authors) {
 	this.authors = authors;
 }
 
+function BreakingNews(headline, trail, url) {
+	this.type = 'breaking';
+	this.headline = headline;
+	this.trail = trail;
+	this.url = url;
+}
+
+
 function handleComment(comment) {
 	var notification = new DirectReply(comment);
 	if (comment.responseTo) {
