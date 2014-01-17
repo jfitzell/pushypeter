@@ -207,7 +207,7 @@ wss.on('connection', function(ws) {
     	}
 	});
 	
-	sendNotification(new Message('Welcome!', 'You are receiving notifications from Guardian Trigger'), ws);
+	//sendNotification(new Message('Welcome!', 'You are receiving notifications from Guardian Trigger'), ws);
 });
 
 function amazonSNSHandler(req, res, notificationCallback, path) {
