@@ -136,7 +136,7 @@ function handlePing(ping) {
 }
 
 function handlePong(pong) {
-	var n = notify('Reply from {USERNAME}', 'First few characters of comment...\nClick here to reply to {USERNAME}', showReply);
+	var n = notify('pong', 'Reply from {USERNAME}', 'First few characters of comment...\nClick here to reply to {USERNAME}', showReply);
 	if (n) setTimeout(function() {n.close()}, 2000);
 }
 
@@ -145,7 +145,7 @@ function showReply() {
 }
 
 function handleDirectReply(reply) {
-	notify(reply.comment.userProfile.displayName,
+	notify('discussion:reply', reply.comment.userProfile.displayName,
 		reply.comment.discussion.title,
 		function () {
 			open(reply.comment.webUrl);
@@ -154,11 +154,11 @@ function handleDirectReply(reply) {
 }
 
 function handleMessage(message) {
-	notify(message.subject, message.text);
+	notify('message', message.subject, message.text);
 }
 
 function handleSoulmatesDM(soulmatesDM) {
-	notify('Soulmates: New message from ' + soulmatesDM.sender, soulmatesDM.text);
+	notify('soulmates:dm', 'Soulmates: New message from ' + soulmatesDM.sender, soulmatesDM.text);
 }
 
 const handlers = {
@@ -182,12 +182,13 @@ function handle(evt) {
 	}	
 }
 
-function notify(title, body, onclick) {
+function notify(id, title, body, onclick) {
 	if (havePermission()) {
+		console.log('Notify: '+ id);
 		var n = new Notification(title, {
 			body: body,
-			icon: 'img/ico.png',
-			tag: 'gu:notify:discussion'
+			icon: 'img/notification-icons/'+ id.split(':')[0] +'.png',
+			tag: 'gu:notify:' + id
 		});
 	
 		if (onclick) n.onclick = onclick;
