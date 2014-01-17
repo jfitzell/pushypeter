@@ -171,7 +171,9 @@ function handleMessage(message) {
 }
 
 function handleSoulmatesDM(message) {
-    notify('soulmates:dm:' + message.id, 'Soulmates: New message from ' + message.sender, message.text);
+    notify('soulmates:dm:' + message.id, 'Soulmates: New message from ' + message.sender, message.text, function() {
+        window.open('https://soulmates.theguardian.com/');
+    });
 }
 
 function handleBreaking(breaking) {
@@ -218,20 +220,13 @@ function handle(evt) {
 
 function notify(id, title, body, onclick) {
     if (havePermission()) {
-        console.log('Notify: '+ id);
         var n = new Notification(title, {
             body: strip(body),
             icon: 'img/notification-icons/'+ id.split(':')[0] +'.png',
             tag: 'gu:notify:' + id
         });
-    
+        
         if (onclick) n.onclick = onclick;
-        
-        // Callback function when the notification is closed.
-        n.onclose = function () {
-            console.log('Notification closed');
-        };
-        
         return n;
     } else {
         console.log('No permission to notify - ignoring notification');
