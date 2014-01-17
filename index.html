@@ -16,7 +16,7 @@ window.addEventListener('load', function () {
 
 
 function connect() {
-	if (ws) {
+	if (ws || autoReconnect) {
 		disconnect();
 	}
 	
@@ -36,8 +36,12 @@ function connect() {
 
 	ws.onclose = function() {
 		console.log("Conection was closed");
-		if (autoReconnect)
-			setTimeout(function() {connect()}, 5000);
+		if (autoReconnect) {
+			setTimeout(function() {
+				if (ws.readyState > 1 && autoReconnect)
+					connect()
+			}, 5000);
+		}
 	};
 	
 	ws.onopen = function() {
