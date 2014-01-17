@@ -164,7 +164,7 @@ function handleMessage(message) {
 }
 
 function handleSoulmatesDM(soulmatesDM) {
-    notify('soulmates:dm:' + message.id, 'Soulmates: New message from ' + message.sender, message.text);
+    notify('soulmates:dm', 'Soulmates: New message from ' + message.sender, message.text);
 }
 
 function handleBreaking(breaking) {
