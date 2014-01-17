@@ -168,7 +168,7 @@ function handleSoulmatesDM(soulmatesDM) {
 }
 
 function handleBreaking(breaking) {
-    notify('BREAKING: ' + breaking.headline, breaking.trail, function() {
+    notify('breaking', breaking.headline, breaking.trail, function() {
         window.open(breaking.url)
     });
 }
