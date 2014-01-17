@@ -41,12 +41,14 @@ function DirectReply(comment) {
 
 function Message(subject, text) {
 	this.type = 'message';
+	this.id = Math.floor(Math.random() * 10000000);
 	this.subject = subject;
 	this.text = text;
 }
 
 function SoulmatesDM(sendername, text) {
 	this.type = 'soulmatesDM';
+	this.id = Math.floor(Math.random() * 10000000);
 	this.sender = sendername;
 	this.text = text;
 }
@@ -56,19 +58,18 @@ function Keepalive() {
 	this.type = 'keepalive';
 }
 
-function NewContent(headline, trail, url, thumbnail, authors) {
+function NewContent(id, headline, trail, url, thumbnail, authors) {
 	this.type = 'newcontent';
+	this.id = id;
 	this.headline = headline;
 	this.trail = trail;
 	this.url = url;
 	this.authors = authors;
 }
 
-function BreakingNews(headline, trail, url) {
+function BreakingNews(id, headline, trail, url, thumbnail, authors) {
+	NewContent.apply(this, arguments);
 	this.type = 'breaking';
-	this.headline = headline;
-	this.trail = trail;
-	this.url = url;
 }
 
 
@@ -84,18 +85,33 @@ function handleComment(comment) {
 	}
 }
 
-function handleContent(content) {
+function extractAuthors(content) {
 	var contributors = [];
 	if (content.tags)
 		contributors = content.tags.filter(function(each) {each.type = 'contributor'});
-	var authors = contributors.map(function(each) {each.webTitle});
+	return contributors.map(function(each) {each.webTitle});
+}
 
+function handleContent(content) {
 	var notification = new NewContent(
+		content.id,
 		content.fields.headline,
 		content.fields.trailText,
 		content.webUrl,
 		content.fields.thumbnail,
-		authors);
+		extractAuthors(content));
+		
+	sendNotification(notification);
+}
+
+function handleBreakingNews(content) {
+	var notification = new BreakingNews(
+		content.id,
+		content.fields.headline,
+		content.fields.trailText,
+		content.webUrl,
+		content.fields.thumbnail,
+		extractAuthors(content));
 		
 	sendNotification(notification);
 }
@@ -191,7 +207,7 @@ wss.on('connection', function(ws) {
     	}
 	});
 	
-	sendNotification(new Message('Welcome!', 'You are receiving notifications from Guardian Trigger'), ws);
+	//sendNotification(new Message('Welcome!', 'You are receiving notifications from Guardian Trigger'), ws);
 });
 
 function amazonSNSHandler(req, res, notificationCallback, path) {
@@ -244,6 +260,15 @@ app.get('/content', function(req, res) {
 	var id = req.query.id ? req.query.id : exampleContentId;
 	fetchContentAPI(id, function (response) {
 		handleContent(response.content);
+	});
+	
+	res.send('Notification sent!');
+});
+
+app.get('/breaking', function(req, res) {
+	var id = req.query.id ? req.query.id : exampleContentId;
+	fetchContentAPI(id, function (response) {
+		handleBreakingNews(response.content);
 	});
 	
 	res.send('Notification sent!');

@@ -150,7 +150,7 @@ function showReply() {
 }
 
 function handleDirectReply(reply) {
-    notify('discussion:reply',
+    notify('discussion:reply:' + reply.comment.id,
         'Reply to your comment from '+ reply.comment.userProfile.displayName,
         reply.comment.body,
         function () {
@@ -160,23 +160,21 @@ function handleDirectReply(reply) {
 }
 
 function handleMessage(message) {
-    notify('message', message.subject, message.text);
+    notify('message:' + message.id, message.subject, message.text);
 }
 
-function handleSoulmatesDM(soulmatesDM) {
-    notify('soulmates:dm', 'Soulmates: New message from ' + soulmatesDM.sender, soulmatesDM.text);
+function handleSoulmatesDM(message) {
+    notify('soulmates:dm:' + message.id, 'Soulmates: New message from ' + message.sender, message.text);
 }
 
 function handleBreaking(breaking) {
-    notify('BREAKING: ' + breaking.headline, breaking.trail, function() {
+    notify('breaking:' + breaking.id, 'BREAKING: ' + breaking.headline, breaking.trail, function() {
         window.open(breaking.url)
     });
 }
 
 function handleNewContent(content) {
-    console.log('content!');
-    console.log(content.headline);
-    notify('message', content.headline, content.trail, function() {
+    notify('content:' + content.id, content.headline, content.trail, function() {
         window.open(content.url)
     });
 }
