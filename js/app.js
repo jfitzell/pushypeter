@@ -9,7 +9,7 @@ var ws;
 var autoReconnect = false;
 var n;
 var user = id.getUserFromCookie();
-var userId = '21801084';
+var userId = localStorage.getItem('gu:trigger:userId') || '21801084';
 
 window.addEventListener('load', function () {
     connect();
@@ -25,13 +25,18 @@ window.addEventListener('load', function () {
         });
     });
 
+    document.getElementById('user-id').value = userId;
+
     document.getElementById('set-user-id').addEventListener('click', function() {
         var newId = document.getElementById('user-id').value;
         if (newId) {
             userId = newId;
             disconnect();
             connect();
+            localStorage.setItem('gu:trigger:userId', userId);
             console.log('User set to '+ userId);
+        } else {
+            alert('Non. Not valid.');
         }
     });
 });
