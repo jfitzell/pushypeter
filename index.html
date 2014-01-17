@@ -4,12 +4,17 @@
 
 <script src="js/id.js"></script>
 <script language="javascript" type="text/javascript">
-// const url = location.origin.replace(/^http/, 'ws');
-var url = 'ws://gu-trigger.herokuapp.com/';
+if (location.origin === 'http://trigger.thegulocal.com') {
+	console.log('James\' machine');
+	const url = 'ws://localhost:5000';
+} else {
+	const url = location.origin.replace(/^http/, 'ws');	
+}
+
 var ws;
 var autoReconnect = false;
 var n;
-
+var user = id.getUserFromCookie();
 
 window.addEventListener('load', function () {
 	connect();
@@ -26,7 +31,7 @@ function connect() {
 	
 	autoReconnect = true;
 	try {
-		ws = new WebSocket(url);
+		ws = new WebSocket(url +'/'+ '4339085');
 	} catch (e) {
 		
 	}

@@ -83,8 +83,14 @@ function Keepalive() {
 
 function handleComment(comment) {
 	var notification = new DirectReply(comment);
-	
-	sendNotification(notification);
+	if (comment.responseTo) {
+		// getting the user Id
+		fetchComment(comment.responseTo.commentId, function(responseTo) {
+			sendNotification(notification, connections[responseTo.userProfile.userId]);
+		});
+	} else {
+		sendNotification(notification);
+	}
 }
 
 function sendNotification(notification, to) {
@@ -92,6 +98,7 @@ function sendNotification(notification, to) {
 	
 	var json = JSON.stringify(notification);
 	var recipients = to ? [to] : sockets;
+
 	recipients.forEach(function(each) {
 		each.send(json, function() { });
 	});
@@ -125,11 +132,14 @@ function fetchComment(id, f) {
 	});
 }
 
-var sockets = new Array();
+var sockets = [];
+var connections = {};
 
 var wss = new WebSocketServer({server: server});
 wss.on('connection', function(ws) {
+	ws.userId = ws.upgradeReq.url.replace('/', '');
 	sockets.push(ws);
+	connections[ws.userId] = ws;
 	console.log('Pushed new socket. List size: ' + sockets.length);
 	
     var id = setInterval(function() {
