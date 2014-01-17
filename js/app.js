@@ -1,8 +1,8 @@
 if (location.origin === 'http://trigger.thegulocal.com') {
     console.log('James\' machine');
-    const url = 'ws://localhost:5000';
+    var url = 'ws://localhost:5000';
 } else {
-    const url = location.origin.replace(/^http/, 'ws'); 
+    var url = location.origin.replace(/^http/, 'ws'); 
 }
 
 var ws;
@@ -188,7 +188,7 @@ function handleNewContent(content) {
     });
 }
 
-const handlers = {
+var handlers = {
 	'keepalive': function() {},
     'newcontent': handleNewContent,
     'ping': handlePing,
