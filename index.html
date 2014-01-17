@@ -148,8 +148,6 @@ function handleDirectReply(reply) {
 	notify(reply.comment.userProfile.displayName,
 		reply.comment.discussion.title,
 		function () {
-			open("http://gu.com");
-			open("http://apple.com");
 			open(reply.comment.webUrl);
 			this.close();
 		});
@@ -159,11 +157,16 @@ function handleMessage(message) {
 	notify(message.subject, message.text);
 }
 
+function handleSoulmatesDM(soulmatesDM) {
+	notify(soulmatesDM.sender, soulmatesDM.text);
+}
+
 const handlers = {
     'ping': handlePing,
     'pong': handlePong,
     'directreply': handleDirectReply,
-    'message': handleMessage
+    'message': handleMessage,
+    'soulmatesDM': handleSoulmatesDM
 };
 
 //////////

@@ -78,6 +78,13 @@ function Message(subject, text) {
 	this.text = text;
 }
 
+function SoulmatesDM(sendername, text) {
+	this.type = 'soulmatesDM';
+	this.sender = sendername;
+	this.text = text;
+}
+
+
 function Keepalive() {
 	this.type = 'keepalive';
 }
@@ -229,6 +236,8 @@ app.get('/comment', function(req, res) {
 	res.send('Notification sent!');
 });
 
+// create a get endpoint to test with
+
 app.get('/send', function(req, res) {
 	if (req.query.message) {
 		sendNotification(new Message(req.query.message));
@@ -236,4 +245,9 @@ app.get('/send', function(req, res) {
 	} else {
 		res.send(400, 'No message specified');
 	}
+});
+
+app.get('/soulmates', function(req, res) {
+	sendNotification(new SoulmatesDM('hotlips34', 'Hey. Saw your profile on the Soulmates homepage, and thought you looked someone I might like to meet'));
+	res.send('Message sent!');
 });
