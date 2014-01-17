@@ -6,6 +6,7 @@ var WebSocketServer = require('ws').Server
   , wsPort = process.env.PORT || 5000;
 
 const discussionAPIBase = 'http://discussion.code.dev-guardianapis.com/discussion-api/';
+const contentAPIBase = '***REMOVED***';
 
 // Set up WebSocket server
 app.use(express.static(__dirname + '/'));
@@ -89,6 +90,14 @@ function Keepalive() {
 	this.type = 'keepalive';
 }
 
+function NewContent(headline, trail, url, thumbnail, authors) {
+	this.type = 'newcontent';
+	this.headline = headline;
+	this.trail = trail;
+	this.url = url;
+	this.authors = authors;
+}
+
 function handleComment(comment) {
 	var notification = new DirectReply(comment);
 	if (comment.responseTo) {
@@ -99,6 +108,22 @@ function handleComment(comment) {
 	} else {
 		sendNotification(notification);
 	}
+}
+
+function handleContent(content) {
+	var contributors = [];
+	if (content.tags)
+		contributors = content.tags.filter(function(each) {each.type = 'contributor'});
+	var authors = contributors.map(function(each) {each.webTitle});
+
+	var notification = new NewContent(
+		content.fields.headline,
+		content.fields.trailText,
+		content.webUrl,
+		content.fields.thumbnail,
+		authors);
+		
+	sendNotification(notification);
 }
 
 function sendNotification(notification, to) {
@@ -128,14 +153,26 @@ function getJSONBody(requestOrResponse, f) {
 	});
 }
 
-function fetchComment(id, f) {
+function fetchComment(id, callback) {
 	var url = discussionAPIBase + 'comment/' + id;
 	console.log('Fetching comment ' + id + ': ' + url);			
 	http.get(url, function(res) {
 		console.log('Got comment ' + id);
 		getJSONBody(res, function(data) {
 			if (data.status == 'ok')
-				f(data.comment);
+				callback(data.comment);
+		});
+	});
+}
+
+function fetchContentAPI(id, callback) {
+	var url = contentAPIBase + id + '?show-fields=all&show-tags=contributor';
+	console.log('Fetching content for ' + id + ': ' + url);			
+	http.get(url, function(res) {
+		console.log('Got content for ' + id);
+		getJSONBody(res, function(data) {
+			if (data.response.status == 'ok')
+				callback(data.response);
 		});
 	});
 }
@@ -220,7 +257,11 @@ app.post('/comment', function(req, res) {
 
 app.post('/content', function(req, res) {
 	amazonSNSHandler(req, res, function(message) {
-		// handle content API notifications
+		if (message.contentType == 'section') { // 'content'
+			fetchContentAPI(message.id, function(response) {
+				handleContent(response.results[0]);
+			});
+		}
 	}, '/content');
 });
 

@@ -144,6 +144,14 @@ function showReply() {
 	window.open('http://discussion.theguardian.com/post?key=p%2F39f5z', 'gu:discussion', 'width=650,height=350');
 }
 
+function handleNewContent(content) {
+	console.log('content!');
+	console.log(content.headline);
+	notify(content.headline, content.trail, function() {
+		window.open(content.url)
+	});
+}
+
 function handleDirectReply(reply) {
 	notify('discussion:reply', reply.comment.userProfile.displayName,
 		reply.comment.discussion.title,
@@ -162,6 +170,7 @@ function handleSoulmatesDM(soulmatesDM) {
 }
 
 const handlers = {
+	'newcontent': handleNewContent,
     'ping': handlePing,
     'pong': handlePong,
     'directreply': handleDirectReply,
