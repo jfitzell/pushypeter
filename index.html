@@ -131,8 +131,12 @@ function handlePing(ping) {
 }
 
 function handlePong(pong) {
-	var n = notify('PONG!', pong.date);
+	var n = notify('Reply from {USERNAME}', 'First few characters of comment...\nClick here to reply to {USERNAME}', showReply);
 	if (n) setTimeout(function() {n.close()}, 2000);
+}
+
+function showReply() {
+	window.open('http://discussion.theguardian.com/post?key=p%2F39f5z', 'gu:discussion', 'width=650,height=350');
 }
 
 function handleDirectReply(reply) {
@@ -175,7 +179,7 @@ function notify(title, body, onclick) {
 		var n = new Notification(title, {
 			body: body,
 			icon: 'img/ico.png',
-			tag: 'unique string'
+			tag: 'gu:notify:discussion'
 		});
 	
 		if (onclick) n.onclick = onclick;
