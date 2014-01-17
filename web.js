@@ -18,7 +18,7 @@ server.listen(wsPort);
 console.log('Server listening on %d', wsPort);
 
 const exampleContentId = 'commentisfree/cifamerica/2012/may/02/occupy-wall-street-panel-may-day';
-const exampleCommentId = 27478730;
+const exampleCommentId = 27478733;
 
 function Ping(seq) {
 	this.type = 'ping';
