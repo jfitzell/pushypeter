@@ -163,8 +163,8 @@ function handleMessage(message) {
     notify('message:' + message.id, message.subject, message.text);
 }
 
-function handleSoulmatesDM(soulmatesDM) {
-    notify('soulmates:dm', 'Soulmates: New message from ' + message.sender, message.text);
+function handleSoulmatesDM(message) {
+    notify('soulmates:dm:' + message.id, 'Soulmates: New message from ' + message.sender, message.text);
 }
 
 function handleBreaking(breaking) {
