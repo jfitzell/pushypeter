@@ -150,8 +150,9 @@ function showReply() {
 }
 
 function handleDirectReply(reply) {
-    notify('discussion:reply:' + reply.comment.id, reply.comment.userProfile.displayName,
-        reply.comment.discussion.title,
+    notify('discussion:reply:' + reply.comment.id,
+        'Reply to your comment from '+ reply.comment.userProfile.displayName,
+        reply.comment.body,
         function () {
             open(reply.comment.webUrl);
             this.close();
@@ -190,6 +191,12 @@ const handlers = {
 
 //////////
 
+function strip(html) {
+   var tmp = document.createElement('div');
+   tmp.innerHTML = html;
+   return tmp.textContent || tmp.innerText || '';
+}
+
 function handle(evt) {
     var obj = eval ("(" + evt.data + ")");
 
@@ -205,7 +212,7 @@ function notify(id, title, body, onclick) {
     if (havePermission()) {
         console.log('Notify: '+ id);
         var n = new Notification(title, {
-            body: body,
+            body: strip(body),
             icon: 'img/notification-icons/'+ id.split(':')[0] +'.png',
             tag: 'gu:notify:' + id
         });

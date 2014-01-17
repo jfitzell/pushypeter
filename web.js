@@ -78,11 +78,11 @@ function handleComment(comment) {
 	if (comment.responseTo) {
 		// getting the user Id
 		fetchComment(comment.responseTo.commentId, function(responseTo) {
-			sendNotification(notification, connections[responseTo.userProfile.userId]);
+			if (connections[responseTo.userProfile.userId]) {
+				sendNotification(notification, connections[responseTo.userProfile.userId]);
+			}
 		});
-	} /*else {
-		sendNotification(notification);
-	}*/
+	}
 }
 
 function extractAuthors(content) {
