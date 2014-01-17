@@ -193,6 +193,12 @@ const handlers = {
 
 //////////
 
+function strip(html) {
+   var tmp = document.createElement('div');
+   tmp.innerHTML = html;
+   return tmp.textContent || tmp.innerText || '';
+}
+
 function handle(evt) {
     var obj = eval ("(" + evt.data + ")");
 
@@ -208,7 +214,7 @@ function notify(id, title, body, onclick) {
     if (havePermission()) {
         console.log('Notify: '+ id);
         var n = new Notification(title, {
-            body: body,
+            body: strip(body),
             icon: 'img/notification-icons/'+ id.split(':')[0] +'.png',
             tag: 'gu:notify:' + id
         });
