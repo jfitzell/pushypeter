@@ -153,7 +153,7 @@ function handleMessage(message) {
 }
 
 function handleSoulmatesDM(soulmatesDM) {
-	notify(soulmatesDM.sender, soulmatesDM.text);
+	notify('Soulmates: New message from ' + soulmatesDM.sender, soulmatesDM.text);
 }
 
 const handlers = {
