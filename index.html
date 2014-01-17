@@ -2,9 +2,10 @@
 
 <title>WebSocket Test</title> 
 
-<script language="javascript" type="text/javascript"> 
-
-const url = location.origin.replace(/^http/, 'ws')
+<script src="js/id.js"></script>
+<script language="javascript" type="text/javascript">
+// const url = location.origin.replace(/^http/, 'ws');
+var url = 'ws://gu-trigger.herokuapp.com/';
 var ws;
 var autoReconnect = false;
 var n;
@@ -130,8 +131,12 @@ function handlePing(ping) {
 }
 
 function handlePong(pong) {
-	var n = notify('PONG!', pong.date);
+	var n = notify('Reply from {USERNAME}', 'First few characters of comment...\nClick here to reply to {USERNAME}', showReply);
 	if (n) setTimeout(function() {n.close()}, 2000);
+}
+
+function showReply() {
+	window.open('http://discussion.theguardian.com/post?key=p%2F39f5z', 'gu:discussion', 'width=650,height=350');
 }
 
 function handleDirectReply(reply) {
@@ -173,7 +178,8 @@ function notify(title, body, onclick) {
 	if (havePermission()) {
 		var n = new Notification(title, {
 			body: body,
-			tag: 'unique string'
+			icon: 'img/ico.png',
+			tag: 'gu:notify:discussion'
 		});
 	
 		if (onclick) n.onclick = onclick;
@@ -199,8 +205,8 @@ function notify(title, body, onclick) {
 <a id="kick" href="javascript:notify();">Test message</a>
  -->
 <a href="#" onclick="connect()">Send me stuff!</a> <br />
- <a href="#" onclick="disconnect()">Disconnect</a><br />
- <a href="#" onclick="sendPing()">ping</a>
+<a href="#" onclick="disconnect()">Disconnect</a><br />
+<a href="#" onclick="sendPing()">ping</a>
 
- <div id="output"></div> 
- </html>
+<div id="output"></div> 
+</html>
