@@ -1,5 +1,6 @@
 var WebSocketServer = require('ws').Server
   , http = require('http')
+  , https = require('https')
   , express = require('express')
   , app = express()
   , wsPort = process.env.PORT || 5000;
@@ -174,32 +175,46 @@ wss.on('connection', function(ws) {
 	sendNotification(new Message('Welcome!', 'You are receiving notifications from Guardian Trigger'), ws);
 });
 
-app.post('/comment', function(req, res) {
+function amazonSNSHandler(req, res, notificationCallback, path) {
+	var prefix = '';
+	if (path) prefix = path + ' - ';
+	
 	var type = req.headers['x-amz-sns-message-type'];
 	
 	getJSONBody(req, function(postData) {		
 		if (type == 'SubscriptionConfirmation') {
-			console.log('/comment - Amazon SNS SubscriptionConfirmation received: %j', postData);
+			console.log('%sAmazon SNS SubscriptionConfirmation received: %j', prefix, postData);
 			var url = postData.SubscribeURL;
 		
-			http.get(url, function(res2) {
+			https.get(url, function(res2) {
 				console.log('Successfully confirmed with ' + url);
 			});
 		} else if (type == 'Notification') {
-			console.log('/comment - Amazon SNS Notification received: %s', postData.Message);
+			console.log('%sAmazon SNS Notification received: %s', prefix, postData.Message);
 
-			var message = JSON.parse(postData.Message);
-			var commentId = message.comment_id;
-
-			fetchComment(commentId, function(comment) {
-				handleComment(comment);
-			});
+			notificationCallback(JSON.parse(postData.Message));
 		} else {
-			console.log('/comment - Unhandled Amazon message type: %s', type);
+			console.log('%sUnhandled Amazon message type: %s', prefix, type);
 		}
 
 		res.send("OK");
 	});
+}
+
+app.post('/comment', function(req, res) {
+	amazonSNSHandler(req, res, function(message) {
+		var commentId = message.comment_id;
+
+		fetchComment(commentId, function(comment) {
+			handleComment(comment);
+		});
+	}, '/comment');
+});
+
+app.post('/content', function(req, res) {
+	amazonSNSHandler(req, res, function(message) {
+		// handle content API notifications
+	}, '/content');
 });
 
 app.get('/comment', function(req, res) {
