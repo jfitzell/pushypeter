@@ -27,18 +27,18 @@
 		padding: 0;
 	}
 
-	.actions a {
-		display: block;
-		font: 16px/1.4 Georgia;
+	.meta {
+		font: 12px Helvetica;
+		background: #eee;
+		margin-top: 20px;
+		padding: 15px;
 	}
 
-	.meta {
-		margin-top: 20px;
-	}
-	.meta a {
+	.tools a {
 		display: inline-block;
 		font: 12px/1.4 helvetica;
 		margin-right: 20px;
+		text-decoration: none;
 	}
 	</style>
 </head>
@@ -55,12 +55,20 @@
 	<button data-action="/comment">Send me a Guardian Reply!</button>
 	<button data-action="/content">Send me an article!</button>
 	<button data-action="/breaking">Send me breaking news!</button>
+	<div>
+		<input type="text" name="userId" id="user-id" placeholder="User ID please" />
+		<button type="button" id="set-user-id">Set</button>
+		<div class="meta">
+			<p>To get your user ID, <a href="https://profile.code.dev-theguardian.com/signin" target="_blank">login</a>, and then run this in the console:</p>
+			<pre>require(['common/modules/identity/api'], function() { console.log(arguments[0].getUserFromCookie().id) });</pre>
+		</div>
+	</div>
 </div>
 
-<div class="meta">
-	<a href="#" onclick="connect()">Connect!</a>
-	<a href="#" onclick="disconnect()">Disconnect</a>
-	<a href="#" onclick="sendPing()">ping</a>
+<div class="meta tools">
+	<a href="#" onclick="connect(); return false;">(°͜ʖ°) Connect</a>
+	<a href="#" onclick="disconnect(); return false;">(ಠ益ಠ) Disconnect</a>
+	<a href="#" onclick="sendPing(); return false;">ping</a>
 </div>
 
 <div id="output"></div> 

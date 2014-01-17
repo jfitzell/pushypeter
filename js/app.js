@@ -9,11 +9,12 @@ var ws;
 var autoReconnect = false;
 var n;
 var user = id.getUserFromCookie();
+var userId = '21801084';
 
 window.addEventListener('load', function () {
     connect();
 
-    Array.prototype.forEach.call(document.querySelectorAll('.actions button'), function(elem) {
+    Array.prototype.forEach.call(document.querySelectorAll('.actions button[data-action]'), function(elem) {
         elem.addEventListener('click', function() {
             var url = this.getAttribute('data-action'),
                 xhr = new XMLHttpRequest();
@@ -22,6 +23,16 @@ window.addEventListener('load', function () {
             xhr.open('GET', url, true);
             xhr.send();
         });
+    });
+
+    document.getElementById('set-user-id').addEventListener('click', function() {
+        var newId = document.getElementById('user-id').value;
+        if (newId) {
+            userId = newId;
+            disconnect();
+            connect();
+            console.log('User set to '+ userId);
+        }
     });
 });
 
@@ -36,7 +47,7 @@ function connect() {
     
     autoReconnect = true;
     try {
-        ws = new WebSocket(url +'/'+ '21801084');
+        ws = new WebSocket(url +'/'+ userId);
     } catch (e) {
         
     }
