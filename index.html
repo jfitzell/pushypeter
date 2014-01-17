@@ -2,9 +2,10 @@
 
 <title>WebSocket Test</title> 
 
-<script language="javascript" type="text/javascript"> 
-
-const url = location.origin.replace(/^http/, 'ws')
+<script src="js/id.js"></script>
+<script language="javascript" type="text/javascript">
+// const url = location.origin.replace(/^http/, 'ws');
+var url = 'ws://gu-trigger.herokuapp.com/';
 var ws;
 var autoReconnect = false;
 var n;
@@ -173,6 +174,7 @@ function notify(title, body, onclick) {
 	if (havePermission()) {
 		var n = new Notification(title, {
 			body: body,
+			icon: 'img/ico.png',
 			tag: 'unique string'
 		});
 	
@@ -199,8 +201,8 @@ function notify(title, body, onclick) {
 <a id="kick" href="javascript:notify();">Test message</a>
  -->
 <a href="#" onclick="connect()">Send me stuff!</a> <br />
- <a href="#" onclick="disconnect()">Disconnect</a><br />
- <a href="#" onclick="sendPing()">ping</a>
+<a href="#" onclick="disconnect()">Disconnect</a><br />
+<a href="#" onclick="sendPing()">ping</a>
 
- <div id="output"></div> 
- </html>
+<div id="output"></div> 
+</html>
