@@ -154,7 +154,10 @@ function handleDirectReply(reply) {
         'Reply to your comment from '+ reply.comment.userProfile.displayName,
         reply.comment.body,
         function () {
-            var url = reply.comment.discussion.webUrl.replace('http://www.theguardian.com/', 'http://m.code.dev-theguardian.com/')+ '#comment-'+ reply.comment.id
+            var url = reply.comment.discussion.webUrl
+                    .replace('http://www.theguardian.com/', 'http://m.code.dev-theguardian.com/')+
+                    .replace('http://www.code.dev-theguardian.com/', 'http://m.code.dev-theguardian.com/')+
+                '#comment-'+ reply.comment.id;
             window.open(url);
             this.close();
         });
