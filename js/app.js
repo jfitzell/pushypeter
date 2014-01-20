@@ -6,7 +6,6 @@ if (location.origin === 'http://trigger.thegulocal.com') {
 }
 
 var socket;
-var autoReconnect = false;
 var n;
 var user = id.getUserFromCookie();
 var userId = localStorage.getItem('gu:trigger:userId') || '21801084';
@@ -44,14 +43,13 @@ window.addEventListener('load', function () {
 
 
 function connect() {
-    if (socket || autoReconnect) {
+    if (socket) {
         disconnect();
     }
     
     if (!havePermission())
         return requestPermission(function() { connect(); });
     
-    autoReconnect = true;
     socket = io.connect(url);
     socket.on('connect', function() {
     	console.log('Connected to %s', url);
@@ -62,18 +60,7 @@ function connect() {
 		});
 
 		socket.on('disconnect', function() {
-			console.log("Conection was closed");
-			if (keepaliveInterval) {
-				clearInterval(keepaliveInterval);
-				keepaliveInterval = null;
-			}
-		
-			if (autoReconnect) {
-				setTimeout(function() {
-					if (socket.readyState > 1 && autoReconnect)
-						connect()
-				}, 5000);
-			}
+			console.log('Conection was closed');
 		});
 		
 		sendUserId();
@@ -81,9 +68,8 @@ function connect() {
 }
 
 function disconnect() {
-    autoReconnect = false;
-    
-    if (socket) socket.disconnect();
+    if (socket)
+    	socket.disconnect();
 }
 
 function sendUserId() {
