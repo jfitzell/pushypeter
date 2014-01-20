@@ -286,8 +286,12 @@ function amazonSNSHandler(req, res, notificationCallback, path) {
 
 app.post('/comment', function(req, res) {
 	amazonSNSHandler(req, res, function(message) {
-		if (sockets.length > 0) { // no need if nobody is listening
+		if (sockets.length == 0) { // no need if nobody is listening
+			console.log('Skipping comment; nobody listening currently');
+		} else {
 			console.log(req.headers['x-amz-sns-topic-arn']);
+			// TODO: specify the environment based on the topic ARN
+			
 			fetchComment(message.comment_id, function(comment) {
 				handleComment(comment);
 			});
@@ -298,7 +302,9 @@ app.post('/comment', function(req, res) {
 app.post('/content', function(req, res) {
 	amazonSNSHandler(req, res, function(message) {
 		if (message.contentType == 'content' && message.event == 'index') {
-			if (sockets.length > 0) { // no need if nobody is listening
+			if (sockets.length == 0) { // no need if nobody is listening
+				console.log('Skipping content; nobody listening currently');
+			} else {
 				console.log(req.headers['x-amz-sns-topic-arn']);
 				fetchContent(message.id, function(response) {
 					handleContent(response.content);
