@@ -4,8 +4,26 @@ var http = require('http')
   , app = express()
   , port = process.env.PORT || 5000;
 
-const discussionAPIBase = 'http://discussion.code.dev-guardianapis.com/discussion-api/';
-const contentAPIBase = '***REMOVED***';
+
+const apis = {
+	discussion: {
+		code: 'http://discussion.code.dev-guardianapis.com/discussion-api/',
+		prod: 'http://discussion.guardianapis.com/discussion-api/'
+	},
+	content: {
+		code: '***REMOVED***',
+		prod: '***REMOVED***'
+	}
+};
+
+app.configure('production', function() {
+	app.set('discussion api env', 'code');
+	app.set('content api env', 'prod');
+});
+app.configure('development', function() {
+	app.set('discussion api env', 'code');
+	app.set('content api env', 'code');
+});
 
 // Set up WebSocket server
 app.use(express.static(__dirname + '/'));
@@ -179,8 +197,9 @@ function getJSONBody(requestOrResponse, f) {
 	});
 }
 
-function fetchComment(id, callback) {
-	var url = discussionAPIBase + 'comment/' + id;
+function fetchComment(id, callback, env) {
+	var api = apis.discussion[env || app.get('discussion api env')];
+	var url = api + 'comment/' + id;
 	console.log('Fetching comment ' + id + ': ' + url);			
 	http.get(url, function(res) {
 		console.log('Got comment ' + id);
@@ -191,8 +210,9 @@ function fetchComment(id, callback) {
 	});
 }
 
-function fetchContentAPI(id, callback) {
-	var url = contentAPIBase + id + '?show-fields=all&show-tags=contributor';
+function fetchContent(id, callback, env) {
+	var api = apis.content[env || app.get('content api env')];
+	var url = api + id + '?show-fields=all&show-tags=contributor';
 	console.log('Fetching content for ' + id + ': ' + url);			
 	http.get(url, function(res) {
 		console.log('Got content for ' + id);
@@ -277,7 +297,7 @@ app.post('/comment', function(req, res) {
 app.post('/content', function(req, res) {
 	amazonSNSHandler(req, res, function(message) {
 		if (message.contentType == 'content') {
-			fetchContentAPI(message.id, function(response) {
+			fetchContent(message.id, function(response) {
 				handleContent(response.content);
 			});
 		}
@@ -286,7 +306,7 @@ app.post('/content', function(req, res) {
 
 app.get('/content', function(req, res) {
 	var id = req.query.id ? req.query.id : exampleContentId;
-	fetchContentAPI(id, function (response) {
+	fetchContent(id, function (response) {
 		handleContent(response.content);
 	});
 	
@@ -295,7 +315,7 @@ app.get('/content', function(req, res) {
 
 app.get('/breaking', function(req, res) {
 	var id = req.query.id ? req.query.id : exampleContentId;
-	fetchContentAPI(id, function (response) {
+	fetchContent(id, function (response) {
 		handleBreakingNews(response.content);
 	});
 	
