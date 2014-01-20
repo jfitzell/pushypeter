@@ -5,7 +5,7 @@ if (location.origin === 'http://trigger.thegulocal.com') {
     var url = location.origin.replace(/^http/, 'ws'); 
 }
 
-var ws;
+var socket;
 var autoReconnect = false;
 var n;
 var user = id.getUserFromCookie();
@@ -31,9 +31,10 @@ window.addEventListener('load', function () {
         var newId = document.getElementById('user-id').value;
         if (newId) {
             userId = newId;
-            disconnect();
-            connect();
             localStorage.setItem('gu:trigger:userId', userId);
+            if (socket.socket.connected)
+            	sendUserId();
+            
             console.log('User set to '+ userId);
         } else {
             alert('Non. Not valid.');
@@ -43,7 +44,7 @@ window.addEventListener('load', function () {
 
 
 function connect() {
-    if (ws || autoReconnect) {
+    if (socket || autoReconnect) {
         disconnect();
     }
     
@@ -51,49 +52,47 @@ function connect() {
         return requestPermission(function() { connect(); });
     
     autoReconnect = true;
-    try {
-        ws = new WebSocket(url +'/'+ userId);
-    } catch (e) {
-        
-    }
-    
-    ws.onmessage = function(evt) {
-        handle(evt); 
-    };
+    socket = io.connect(url);
+    socket.on('connect', function() {
+    	console.log('Connected to %s', url);
+		var keepaliveInterval = setInterval(function() { sendKeepalive() }, 30000);
+		
+		socket.on('message', function(message) {
+			handle(message); 
+		});
 
-    var keepaliveInterval;
-
-    ws.onclose = function() {
-        console.log("Conection was closed");
-        if (keepaliveInterval) {
-            clearInterval(keepaliveInterval);
-            keepaliveInterval = null;
-        }
-        
-        if (autoReconnect) {
-            setTimeout(function() {
-                if (ws.readyState > 1 && autoReconnect)
-                    connect()
-            }, 5000);
-        }
-    };
-    
-    ws.onopen = function() {
-        console.log('Connected to %s', url);
-        keepaliveInterval = setInterval(function() { sendKeepalive() }, 30000);
-//      sendPing();
-    }
+		socket.on('disconnect', function() {
+			console.log("Conection was closed");
+			if (keepaliveInterval) {
+				clearInterval(keepaliveInterval);
+				keepaliveInterval = null;
+			}
+		
+			if (autoReconnect) {
+				setTimeout(function() {
+					if (socket.readyState > 1 && autoReconnect)
+						connect()
+				}, 5000);
+			}
+		});
+		
+		sendUserId();
+	});
 }
 
 function disconnect() {
     autoReconnect = false;
     
-    if (ws) ws.close();
+    if (socket) socket.disconnect();
+}
+
+function sendUserId() {
+	socket.emit('set-user-id', userId);
 }
 
 function sendPing() {
-    if (ws) {
-        ws.send(JSON.stringify({
+    if (socket) {
+        socket.send(JSON.stringify({
             type: 'ping',
             date: new Date()
         }));
@@ -101,8 +100,8 @@ function sendPing() {
 }
 
 function sendPong() {
-    if (ws) {
-        ws.send(JSON.stringify({
+    if (socket) {
+        socket.send(JSON.stringify({
             type: 'pong',
             date: new Date()
         }));
@@ -110,8 +109,8 @@ function sendPong() {
 }
 
 function sendKeepalive() {
-    if (ws) {
-        ws.send(JSON.stringify({
+    if (socket) {
+        socket.send(JSON.stringify({
             type: 'keepalive'
         }));
     }
@@ -223,14 +222,14 @@ function strip(html) {
    return tmp.textContent || tmp.innerText || '';
 }
 
-function handle(evt) {
-    var obj = eval ("(" + evt.data + ")");
+function handle(message) {
+    var notification = eval ("(" + message + ")");
 
-    var handler = handlers[obj.type];
+    var handler = handlers[notification.type];
     if (handler) {
-        handler(obj);
+        handler(notification);
     } else {
-        console.log('Unknown type: %s', obj.type);
+        console.log('Unknown type: %s', notification.type);
     }   
 }
 

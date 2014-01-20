@@ -1,9 +1,8 @@
-var WebSocketServer = require('ws').Server
-  , http = require('http')
+var http = require('http')
   , https = require('https')
   , express = require('express')
   , app = express()
-  , wsPort = process.env.PORT || 5000;
+  , port = process.env.PORT || 5000;
 
 const discussionAPIBase = 'http://discussion.code.dev-guardianapis.com/discussion-api/';
 const contentAPIBase = '***REMOVED***';
@@ -13,9 +12,10 @@ app.use(express.static(__dirname + '/'));
 //app.use(express.bodyParser());
 
 var server = http.createServer(app);
-server.listen(wsPort);
+var io = require('socket.io').listen(server);
+server.listen(port);
 
-console.log('Server listening on %d', wsPort);
+console.log('Server listening on %d', port);
 
 const exampleContentId = 'commentisfree/cifamerica/2012/may/02/occupy-wall-street-panel-may-day';
 const exampleCommentId = 27478733;
@@ -88,11 +88,15 @@ function BreakingNews(id, headline, trail, url, thumbnail, authors) {
 function handleComment(comment) {
 	var notification = new DirectReply(comment);
 	if (comment.responseTo) {
-		// getting the user Id
 		fetchComment(comment.responseTo.commentId, function(responseTo) {
-			if (connections[responseTo.userProfile.userId]) {
-				sendNotification(notification, connections[responseTo.userProfile.userId]);
-			}
+			sockets.forEach(function(socket) {
+				socket.get('userId', function(err, userId) {
+					if (!err) {
+						if (userId == responseTo.userProfile.userId)
+							sendNotification(notification, socket);
+					}
+				})
+			})
 		});
 	}
 }
@@ -132,7 +136,12 @@ function sendNotification(notification, to) {
 	console.log('Sending notification: %j', notification);
 	
 	var json = JSON.stringify(notification);
-	var recipients = to ? [to] : sockets;
+	var recipients = sockets;
+	if (typeof(to) == 'function') {
+		recipients = recipients.filter(to);
+	} else if (to) {
+		recipients = [to];
+	}
 
 	recipients.forEach(function(each) {
 		each.send(json, function() { });
@@ -182,32 +191,33 @@ function fetchContentAPI(id, callback) {
 var sockets = [];
 var connections = {};
 
-var wss = new WebSocketServer({server: server});
-wss.on('connection', function(ws) {
-	ws.userId = ws.upgradeReq.url.replace('/', '');
-	sockets.push(ws);
-	connections[ws.userId] = ws;
+io.sockets.on('connection', function(socket) {
+	sockets.push(socket);
 	console.log('Pushed new socket. List size: ' + sockets.length);
 	
     var id = setInterval(function() {
-        sendNotification(new Keepalive(), ws);
+        sendNotification(new Keepalive(), socket);
     }, 45000);
 
     console.log('websocket connection open');
 
-    ws.on('close', function() {
+	socket.on('set-user-id', function(id) {
+		console.log('Socket set user id to %s', id);
+		socket.set('userId', id);
+	});
+
+    socket.on('disconnect', function() {
 		console.log('websocket connection close');
 		clearInterval(id);
         
-        var index = sockets.indexOf(ws);
+        var index = sockets.indexOf(socket);
         if (index > -1) {
         	sockets.splice(index, 1);
-        	delete connections[ws.userId];
         }
         console.log('Removed socket. List size: ' + sockets.length);
     });
     
-    ws.on('message', function(data, flags) {
+    socket.on('message', function(data, flags) {
     	console.log('Message received: %s', data);
 		var message = JSON.parse(data);
 
@@ -218,8 +228,6 @@ wss.on('connection', function(ws) {
     		console.log('Pong received');
     	}
 	});
-	
-	//sendNotification(new Message('Welcome!', 'You are receiving notifications from Guardian Trigger'), ws);
 });
 
 function amazonSNSHandler(req, res, notificationCallback, path) {
