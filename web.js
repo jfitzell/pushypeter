@@ -121,7 +121,7 @@ function BreakingNews(id, headline, trail, url, thumbnail, authors) {
 function handleComment(comment) {
 	var notification = new DirectReply(comment);
 	if (comment.responseTo) {
-		fetchComment(comment.responseTo.commentId, function(responseTo) {
+		fetchComment(comment.responseTo.commentApiUrl, function(responseTo) {
 			sockets.forEach(function(socket) {
 				socket.get('userId', function(err, userId) {
 					if (!err) {
@@ -197,12 +197,16 @@ function getJSONBody(requestOrResponse, f) {
 	});
 }
 
-function fetchComment(id, callback, env) {
-	var api = apis.discussion[env || app.get('discussion api env')];
-	var url = api + 'comment/' + id;
-	console.log('Fetching comment ' + id + ': ' + url);			
+function fetchComment(idOrUrl, callback, env) {
+	if (/^\d+$/.exec(idOrUrl)) {
+		var api = apis.discussion[env || app.get('discussion api env')];
+		var url = api + 'comment/' + idOrUrl;
+	} else {
+		var url = idOrUrl;
+	}
+	
+	console.log('Fetching comment: ' + url);			
 	http.get(url, function(res) {
-		console.log('Got comment ' + id);
 		getJSONBody(res, function(data) {
 			if (data.status == 'ok')
 				callback(data.comment);
