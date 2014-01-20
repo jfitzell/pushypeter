@@ -231,7 +231,7 @@ io.sockets.on('connection', function(socket) {
 
     	if (message.type == 'ping') {
     		console.log('Ping received');
-    		sendNotification(new Pong(message.seq), ws);
+    		sendNotification(new Pong(message.seq), socket);
     	} else if (message.type == 'pong') {
     		console.log('Pong received');
     	}
