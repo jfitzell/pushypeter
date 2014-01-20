@@ -41,18 +41,22 @@ window.addEventListener('load', function () {
     });
 });
 
-
 function connect() {
-    if (socket) {
+    if (socket && socket.socket.connecting) {
         disconnect();
     }
-    
+
     if (!havePermission())
         return requestPermission(function() { connect(); });
-    
-    socket = io.connect(url);
-    socket.on('connect', function() {
-    	console.log('Connected to %s', url);
+
+	if (! socket) {
+		socket = io.connect(url);
+		socket.on('connect', function() {
+			console.log('Connected to %s', url);
+			updateStatus('Connected');
+		
+			sendUserId();
+		});
 		
 		socket.on('message', function(message) {
 			handle(message); 
@@ -60,16 +64,37 @@ function connect() {
 
 		socket.on('disconnect', function() {
 			console.log('Conection was closed');
+			if (socket.socket.reconnecting) // TODO: this doesn't seem to be true at this point
+				updateStatus('Connection lost. Reconnecting...');
+			else
+				updateStatus('Disconnected');
 		});
-		
-		sendUserId();
-	});
+	
+		socket.on('reconnect_failed', function() {
+			console.log('Auto-reconnect failed... giving up.');
+			updateStatus('Disconnected');
+			notify('reconnect-failed', 'Trigger connection lost', 'Click to try reconnecting', function() {connect()});
+		});
+	}
+   
+    if (! socket.socket.connectiong) {
+		// On disconnect/reconnect, this doesn't seem to auto connect
+		//  (I think it's re-using the socket)
+		socket.socket.connect()    	
+    }
+    updateStatus('Connecting...');
 }
 
 function disconnect() {
     if (socket)
     	socket.disconnect();
 }
+
+function updateStatus(status) {
+	console.log(status);
+	document.getElementById('status').innerHTML = status;
+}
+
 
 function sendUserId() {
 	socket.emit('set-user-id', userId);
