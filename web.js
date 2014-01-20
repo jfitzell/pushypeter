@@ -15,6 +15,11 @@ var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 server.listen(port);
 
+io.configure('production', function(){
+  io.enable('browser client etag');
+//  io.set('log level', 1);
+});
+
 console.log('Server listening on %d', port);
 
 const exampleContentId = 'commentisfree/cifamerica/2012/may/02/occupy-wall-street-panel-may-day';
