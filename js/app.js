@@ -172,16 +172,9 @@ function handleDirectReply(reply) {
         'Reply to your comment from '+ reply.comment.userProfile.displayName,
         reply.comment.body,
         function () {
-            var url = mUrl(reply.comment.discussion.webUrl)+'#comment-'+ reply.comment.id;
-            window.open(url);
+            window.open(reply.comment.webUrl);
             this.close();
         });
-}
-
-function mUrl(url) {
-    return url
-            .replace('http://www.theguardian.com/', 'http://m.code.dev-theguardian.com/')
-            .replace('http://www.code.dev-theguardian.com/', 'http://m.code.dev-theguardian.com/');
 }
 
 function handleMessage(message) {
@@ -196,13 +189,13 @@ function handleSoulmatesDM(message) {
 
 function handleBreaking(breaking) {
     notify('breaking:' + breaking.id, 'BREAKING: ' + breaking.headline, breaking.trail, function() {
-        window.open(mUrl(breaking.url));
+        window.open(breaking.url);
     });
 }
 
 function handleNewContent(content) {
     notify('content:' + content.id, content.headline, content.trail, function() {
-        window.open(mUrl(content.url));
+        window.open(content.url);
     });
 }
 
