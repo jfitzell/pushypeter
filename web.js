@@ -16,8 +16,22 @@ var io = require('socket.io').listen(server);
 server.listen(port);
 
 io.configure('production', function(){
-  io.enable('browser client etag');
-//  io.set('log level', 1);
+	io.enable('browser client etag');
+// 	io.set('log level', 1);
+
+	/* The timeout for the client when it should send a new heartbeat to the server.
+	 * This value is sent to the client after a successful handshake.
+	 */
+// 	io.set('heartbeat timeout', 60); // defaults to 60 seconds
+
+	/* The timeout for the server, we should receive a heartbeat from the client
+	 * within this interval. This should be less than the heartbeat timeout.
+	 */
+// 	io.set('heartbeat interval', 25); // defaults to 25 seconds
+
+	/* The maximum duration of one HTTP poll, if it exceeds this limit it will be closed.
+	 */
+// 	io.set('polling duration', 20); // defaults to 20 seconds
 });
 
 console.log('Server listening on %d', port);
