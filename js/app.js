@@ -53,7 +53,6 @@ function connect() {
     socket = io.connect(url);
     socket.on('connect', function() {
     	console.log('Connected to %s', url);
-		var keepaliveInterval = setInterval(function() { sendKeepalive() }, 30000);
 		
 		socket.on('message', function(message) {
 			handle(message); 
@@ -94,13 +93,6 @@ function sendPong() {
     }
 }
 
-function sendKeepalive() {
-    if (socket) {
-        socket.send(JSON.stringify({
-            type: 'keepalive'
-        }));
-    }
-}
 
 function requestPermission(callback) {
     if (supportNotifications()) {
@@ -190,7 +182,6 @@ function handleNewContent(content) {
 }
 
 var handlers = {
-	'keepalive': function() {},
     'newcontent': handleNewContent,
     'ping': handlePing,
     'pong': handlePong,

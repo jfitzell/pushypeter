@@ -66,10 +66,6 @@ function SoulmatesDM(sendername, text) {
 }
 
 
-function Keepalive() {
-	this.type = 'keepalive';
-}
-
 function NewContent(id, headline, trail, url, thumbnail, authors) {
 	this.type = 'newcontent';
 	this.id = id;
@@ -193,12 +189,6 @@ var connections = {};
 
 io.sockets.on('connection', function(socket) {
 	sockets.push(socket);
-	console.log('Pushed new socket. List size: ' + sockets.length);
-	
-    var id = setInterval(function() {
-        sendNotification(new Keepalive(), socket);
-    }, 45000);
-
     console.log('websocket connection open');
 
 	socket.on('set-user-id', function(id) {
@@ -208,7 +198,6 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
 		console.log('websocket connection close');
-		clearInterval(id);
         
         var index = sockets.indexOf(socket);
         if (index > -1) {
