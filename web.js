@@ -223,6 +223,17 @@ function fetchContent(id, callback, env) {
 	});
 }
 
+function discussionEnvForSNSRequest(req) {
+	console.log(req.headers['x-amz-sns-topic-arn']);
+	var arn = req.headers['x-amz-sns-topic-arn'];
+	
+	var matches = /:comments-(.+)$/.exec(arn);
+	if (matches)
+		return matches[1].toLowerCase()
+	else
+		return app.get('discussion api env');
+}
+
 var sockets = [];
 var connections = {};
 
@@ -289,12 +300,11 @@ app.post('/comment', function(req, res) {
 		if (sockets.length == 0) { // no need if nobody is listening
 			console.log('Skipping comment; nobody listening currently');
 		} else {
-			console.log(req.headers['x-amz-sns-topic-arn']);
-			// TODO: specify the environment based on the topic ARN
+			var env = discussionEnvForSNSRequest(req);			
 			
 			fetchComment(message.comment_id, function(comment) {
 				handleComment(comment);
-			});
+			}, env);
 		}
 	}, '/comment');
 });
