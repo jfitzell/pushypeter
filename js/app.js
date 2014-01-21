@@ -41,6 +41,10 @@ window.addEventListener('load', function () {
     });
 });
 
+function showDebuggingLinks() {
+	document.getElementById('debugging').style.display="block";
+}
+
 function connect() {
     if (socket && socket.socket.connecting) {
         disconnect();
@@ -159,13 +163,10 @@ function handlePing(ping) {
 }
 
 function handlePong(pong) {
-    var n = notify('pong', 'Reply from {USERNAME}', 'First few characters of comment...\nClick here to reply to {USERNAME}', showReply);
-    if (n) setTimeout(function() {n.close()}, 2000);
+    var n = notify('pong', 'Pong!', 'Response received from server');
+    if (n) setTimeout(function() { n.close() }, 2000);
 }
 
-function showReply() {
-    window.open('http://discussion.theguardian.com/post?key=p%2F39f5z', 'gu:discussion', 'width=650,height=350');
-}
 
 function handleDirectReply(reply) {
     notify('discussion:reply:' + reply.comment.id,

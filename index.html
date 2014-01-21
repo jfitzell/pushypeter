@@ -16,13 +16,10 @@
 </hgroup>
 
 <div class="actions">
-	<button data-action="/soulmates">Send me a Soulmates DM!</button>
-	<button data-action="/comment">Send me a Guardian Reply!</button>
-	<button data-action="/content">Send me an article!</button>
-	<button data-action="/breaking">Send me breaking news!</button>
 	<div>
+		<p>On some browsers, you may have to explicitly <a href="#" onclick="requestPermission(); return false;">allow notifications</a>. To test your connection, try sending a ping below.</p>
 		<input type="text" name="userId" id="user-id" placeholder="User ID please" />
-		<button type="button" id="set-user-id">Set</button>
+		<button type="button" id="set-user-id">Set user ID</button>
 		<div class="meta">
 			<p>To get your user ID, <a href="https://profile.code.dev-theguardian.com/signin" target="_blank">login</a>, and then run this in the console:</p>
 			<pre>require(['common/modules/identity/api'], function() { console.log(arguments[0].getUserFromCookie().id) });</pre>
@@ -34,11 +31,17 @@
 	<div id="status">Disconnected</div>
 	<a href="#" onclick="connect(); return false;">(°͜ʖ°) Connect</a>
 	<a href="#" onclick="disconnect(); return false;">(ಠ益ಠ) Disconnect</a>
-	<a href="#" onclick="sendPing(); return false;">ping</a>
-	On Firefox, you will have to <a href="#" onclick="requestPermission(); return false;">allow notifications</a>
+	<a href="#" onclick="sendPing(); return false;">send ping</a>
+	<a href="#" onclick="showDebuggingLinks(); return false;">debug</a>
 </div>
 
 <div id="output"></div> 
 
+<div class="actions" id="debugging">
+	<button data-action="/soulmates">Send everyone a Soulmates DM!</button>
+	<button data-action="/comment">Send everyone a Guardian Reply to 21801084!</button>
+	<button data-action="/content">Send everyone an article!</button>
+	<button data-action="/breaking">Send everyone breaking news!</button>
+</div>
 </body>
 </html>
