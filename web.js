@@ -17,7 +17,7 @@ const apis = {
 };
 
 app.configure('production', function() {
-	app.set('discussion api env', 'code');
+	app.set('discussion api env', 'prod');
 	app.set('content api env', 'code');
 });
 app.configure('development', function() {
