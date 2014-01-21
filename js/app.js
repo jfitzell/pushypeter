@@ -5,6 +5,7 @@ if (location.origin === 'http://trigger.thegulocal.com') {
     var url = location.origin.replace(/^http/, 'ws'); 
 }
 
+var discussionAPI = 'http://discussion.guardianapis.com/discussion-api/';
 var socket;
 var n;
 var user = id.getUserFromCookie();
@@ -25,21 +26,52 @@ window.addEventListener('load', function () {
     });
 
     document.getElementById('user-id').value = userId;
+    sendUserId(); // Send the stored user id immediately in case the discussion API fails
+    setUserId(); // 
 
-    document.getElementById('set-user-id').addEventListener('click', function() {
-        var newId = document.getElementById('user-id').value;
-        if (newId) {
-            userId = newId;
-            localStorage.setItem('gu:trigger:userId', userId);
-            if (socket.socket.connected)
-            	sendUserId();
-            
-            console.log('User set to '+ userId);
-        } else {
-            alert('Non. Not valid.');
-        }
-    });
+    document.getElementById('set-user-id').addEventListener('click', setUserId);
+    document.getElementById('set-user-name').addEventListener('click', setUserName);
 });
+
+function storeUserId() {
+	var newId = document.getElementById('user-id').value;
+	if (newId) {
+		userId = newId;
+		localStorage.setItem('gu:trigger:userId', userId);
+		console.log('User set to '+ userId);
+	} else {
+		alert('Non. Not valid.');
+	}
+}
+
+function setUserId() {
+	var newId = document.getElementById('user-id').value;
+	var script = document.createElement('script');
+	script.src = discussionAPI + 'profile/'
+		+ newId
+		+ '?callback=handleProfileResponse';
+	document.body.appendChild(script);
+}
+
+function setUserName() {
+	var newName = document.getElementById('user-name').value;
+	var script = document.createElement('script');
+	script.src = discussionAPI + 'profile/vanityUrl/'
+		+ newName
+		+ '?callback=handleProfileResponse';
+	document.body.appendChild(script);
+}
+
+function handleProfileResponse(response) {
+	if (response.status == 'ok') {
+		document.getElementById('user-id').value = response.userProfile.userId;
+		document.getElementById('user-name').value = response.userProfile.displayName;
+		storeUserId();
+		if (socket.socket.connected)
+			sendUserId();
+	} else
+		alert('Error. Does that user exist?');
+}
 
 function showDebuggingLinks() {
 	document.getElementById('debugging').style.display="block";
