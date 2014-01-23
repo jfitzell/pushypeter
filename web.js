@@ -320,9 +320,13 @@ app.post('/content', function(req, res) {
 				console.log('Skipping content; nobody listening currently');
 			} else {
 				console.log(req.headers['x-amz-sns-topic-arn']);
-				fetchContent(message.id, function(response) {
-					handleContent(response.content);
-				});
+				if ('production' != process.env.NODE_ENV) {
+					fetchContent(message.id, function(response) {
+						handleContent(response.content);
+					});
+				} else {
+					console.log('*** Content API handling disabled in production for now ***');
+				}
 			}
 		}
 	}, '/content');
