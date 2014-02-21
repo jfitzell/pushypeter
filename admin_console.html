@@ -18,9 +18,9 @@
 <div class="actions">
 	<div>
 		<p>On some browsers, you may have to explicitly <a href="#" onclick="requestPermission(); return false;">allow notifications</a>. To test your connection, try sending a ping below.</p>
-		<input type="hidden" name="userId" id="user-id" placeholder="User ID please" />
-	
-		<input type="text" name="userName" id="user-name" placeholder="Username e.g. cifdebater" />
+		<input type="text" name="userId" id="user-id" placeholder="User ID please" />
+		<button type="button" id="set-user-id">Set user ID</button>
+		<input type="text" name="userName" id="user-name" placeholder="Username please" />
 		<button type="button" id="set-user-name">Set username</button>
 		<!--
 		<div class="meta">
@@ -33,13 +33,19 @@
 
 <div class="meta tools">
 	<div id="status">Disconnected</div>
-	<a href="#" onclick="connect(); return false;">Connect</a>
-	<a href="#" onclick="disconnect(); return false;">Disconnect</a>
-	<a href="#" onclick="sendPing(); return false;">Send a test message</a>
+	<a href="#" onclick="connect(); return false;">(°͜ʖ°) Connect</a>
+	<a href="#" onclick="disconnect(); return false;">(ಠ益ಠ) Disconnect</a>
+	<a href="#" onclick="sendPing(); return false;">send ping</a>
+	<a href="#" onclick="showDebuggingLinks(); return false;">debug</a>
 </div>
 
 <div id="output"></div> 
 
-
+<div class="actions" id="debugging">
+	<button data-action="/soulmates">Send everyone a Soulmates DM!</button>
+	<button data-action="/comment">Send everyone a Guardian Reply to 21801084!</button>
+	<button data-action="/content">Send everyone an article!</button>
+	<button data-action="/breaking">Send everyone breaking news!</button>
+</div>
 </body>
 </html>
