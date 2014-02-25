@@ -40,3 +40,10 @@ h1 {
 #debugging {
 	display: none;
 }
+
+#profile-link {
+	width: 60px;
+	height: 60px;
+	display: block;
+	margin: 4px;
+}

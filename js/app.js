@@ -9,7 +9,7 @@ var discussionAPI = 'http://discussion.guardianapis.com/discussion-api/';
 var socket;
 var n;
 var user = id.getUserFromCookie();
-var userId = localStorage.getItem('gu:trigger:userId') || '21801084';
+var userId = localStorage.getItem('gu:trigger:userId');
 
 window.addEventListener('load', function () {
     connect();
@@ -25,12 +25,19 @@ window.addEventListener('load', function () {
         });
     });
 
-    document.getElementById('user-id').value = userId;
-    sendUserId(); // Send the stored user id immediately in case the discussion API fails
-    setUserId(); // 
+	if (userId) {
+	    document.getElementById('user-id').value = userId;
+		sendUserId(); // Send the stored user id immediately in case the discussion API fails
+		setUserId();
+	}
 
-    document.getElementById('set-user-id').addEventListener('click', setUserId);
-    document.getElementById('set-user-name').addEventListener('click', setUserName);
+    var usernameButton = document.getElementById('set-user-name');
+    if (usernameButton)
+    	usernameButton.addEventListener('click', setUserName);
+    
+    var userIdButton = document.getElementById('set-user-id');
+    if (userIdButton)
+    	userIdButton.addEventListener('click', setUserId);
 });
 
 function storeUserId() {
@@ -39,6 +46,7 @@ function storeUserId() {
 		userId = newId;
 		localStorage.setItem('gu:trigger:userId', userId);
 		console.log('User set to '+ userId);
+		updateUserDetails();
 	} else {
 		alert('Non. Not valid.');
 	}
@@ -46,23 +54,15 @@ function storeUserId() {
 
 function setUserId() {
 	var newId = document.getElementById('user-id').value;
-	var script = document.createElement('script');
-	script.src = discussionAPI + 'profile/'
-		+ newId
-		+ '?callback=handleProfileResponse';
-	document.body.appendChild(script);
+	fetchProfileById(newId, 'setUserNameFromProfile');
 }
 
 function setUserName() {
 	var newName = document.getElementById('user-name').value;
-	var script = document.createElement('script');
-	script.src = discussionAPI + 'profile/vanityUrl/'
-		+ newName
-		+ '?callback=handleProfileResponse';
-	document.body.appendChild(script);
+	fetchProfileByName(newName, 'setUserNameFromProfile');
 }
 
-function handleProfileResponse(response) {
+function setUserNameFromProfile(response) {
 	if (response.status == 'ok') {
 		document.getElementById('user-id').value = response.userProfile.userId;
 		document.getElementById('user-name').value = response.userProfile.displayName;
@@ -129,6 +129,23 @@ function disconnect() {
 function updateStatus(status) {
 	console.log(status);
 	document.getElementById('status').innerHTML = status;
+}
+
+function updateUserDetails() {
+	fetchProfileById(userId, 'updateUserDetailsWithProfile');
+}
+
+function updateUserDetailsWithProfile(response) {
+	if (response.status == 'ok') {
+		var link = document.getElementById('profile-link');
+		if (link) {
+			link.style.backgroundImage = 'url(' + response.userProfile.avatar + ')';
+			link.href = response.userProfile.webUrl;
+			link.title = response.userProfile.displayName + ' (click for profile)';
+		}
+	} else {
+		alert('non');
+	}
 }
 
 
@@ -275,4 +292,23 @@ function notify(id, title, body, onclick) {
         console.log('No permission to notify - ignoring notification');
         return null;
     }
+}
+
+
+function fetchProfileById(id, callback) {
+	var script = document.createElement('script');
+	script.src = discussionAPI + 'profile/'
+		+ id
+		+ '?callback='
+		+ callback;
+	document.body.appendChild(script);
+}
+
+function fetchProfileByName(username, callback) {
+	var script = document.createElement('script');
+	script.src = discussionAPI + 'profile/vanityUrl/'
+		+ username
+		+ '?callback='
+		+ callback;
+	document.body.appendChild(script);
 }
